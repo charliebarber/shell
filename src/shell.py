@@ -1,12 +1,20 @@
+import imp
 import re
 import sys
 import os
+
+from matplotlib import cm
+import applications
 from os import listdir
 from collections import deque
 from glob import glob
 
+from applications.pwd import pwd
+
+
 # TODO: Split each command into individual files
- 
+
+
 def eval(cmdline, out):
     raw_commands = []
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
@@ -27,7 +35,7 @@ def eval(cmdline, out):
         app = tokens[0]
         args = tokens[1:]
         if app == "pwd":
-            out.append(os.getcwd())
+            pwd(cmdline, out, args)
         elif app == "cd":
             if len(args) == 0 or len(args) > 1:
                 raise ValueError("wrong number of command line arguments")
