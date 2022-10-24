@@ -5,7 +5,8 @@ from os import listdir
 from collections import deque
 from glob import glob
 
-
+# TODO: Split each command into individual files
+ 
 def eval(cmdline, out):
     raw_commands = []
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
