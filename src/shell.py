@@ -3,7 +3,6 @@ import re
 import sys
 import os
 
-from matplotlib import cm
 from os import listdir
 from collections import deque
 from glob import glob
