@@ -1,12 +1,26 @@
+import imp
 import re
 import sys
 import os
+
+from matplotlib import cm
 from os import listdir
 from collections import deque
 from glob import glob
 
+from applications.pwd import pwd
+from applications.cd import cd
+from applications.echo import echo
+from applications.ls import ls
+from applications.cat import cat
+from applications.head import head
+from applications.tail import tail
+from applications.grep import grep
+
+
 # TODO: Split each command into individual files
- 
+
+
 def eval(cmdline, out):
     raw_commands = []
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
@@ -27,74 +41,21 @@ def eval(cmdline, out):
         app = tokens[0]
         args = tokens[1:]
         if app == "pwd":
-            out.append(os.getcwd())
+            pwd(cmdline, out, args)
         elif app == "cd":
-            if len(args) == 0 or len(args) > 1:
-                raise ValueError("wrong number of command line arguments")
-            os.chdir(args[0])
+            cd(cmdline, out, args)
         elif app == "echo":
-            out.append(" ".join(args) + "\n")
+            echo(cmdline, out, args)
         elif app == "ls":
-            if len(args) == 0:
-                ls_dir = os.getcwd()
-            elif len(args) > 1:
-                raise ValueError("wrong number of command line arguments")
-            else:
-                ls_dir = args[0]
-            for f in listdir(ls_dir):
-                if not f.startswith("."):
-                    out.append(f + "\n")
+            ls(cmdline, out, args)
         elif app == "cat":
-            for a in args:
-                with open(a) as f:
-                    out.append(f.read())
+            cat(cmdline, out, args)
         elif app == "head":
-            if len(args) != 1 and len(args) != 3:
-                raise ValueError("wrong number of command line arguments")
-            if len(args) == 1:
-                num_lines = 10
-                file = args[0]
-            if len(args) == 3:
-                if args[0] != "-n":
-                    raise ValueError("wrong flags")
-                else:
-                    num_lines = int(args[1])
-                    file = args[2]
-            with open(file) as f:
-                lines = f.readlines()
-                for i in range(0, min(len(lines), num_lines)):
-                    out.append(lines[i])
+            head(cmdline, out, args)
         elif app == "tail":
-            if len(args) != 1 and len(args) != 3:
-                raise ValueError("wrong number of command line arguments")
-            if len(args) == 1:
-                num_lines = 10
-                file = args[0]
-            if len(args) == 3:
-                if args[0] != "-n":
-                    raise ValueError("wrong flags")
-                else:
-                    num_lines = int(args[1])
-                    file = args[2]
-            with open(file) as f:
-                lines = f.readlines()
-                display_length = min(len(lines), num_lines)
-                for i in range(0, display_length):
-                    out.append(lines[len(lines) - display_length + i])
+            tail(cmdline, out, args)
         elif app == "grep":
-            if len(args) < 2:
-                raise ValueError("wrong number of command line arguments")
-            pattern = args[0]
-            files = args[1:]
-            for file in files:
-                with open(file) as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        if re.match(pattern, line):
-                            if len(files) > 1:
-                                out.append(f"{file}:{line}")
-                            else:
-                                out.append(line)
+            grep(cmdline, out, args)
         else:
             raise ValueError(f"unsupported application {app}")
 
