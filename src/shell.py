@@ -14,6 +14,7 @@ from applications.echo import echo
 from applications.ls import ls
 from applications.cat import cat
 from applications.head import head
+from applications.sort import sort
 from applications.tail import tail
 from applications.grep import grep
 
@@ -56,6 +57,8 @@ def eval(cmdline, out):
             tail(cmdline, out, args)
         elif app == "grep":
             grep(cmdline, out, args)
+        elif app == "sort":
+            sort(cmdline, out, args)
         else:
             raise ValueError(f"unsupported application {app}")
 
