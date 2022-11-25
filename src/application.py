@@ -14,6 +14,7 @@ class Application:
         pass
 
     def exec(self, args, input, output, app):
+
         if app == "pwd":
             pwd(input, output, args)
         elif app == "cd":

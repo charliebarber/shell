@@ -6,5 +6,5 @@ from collections import deque
 from glob import glob
 
 
-def pwd(cmdline, out, args):
-    out.append(os.getcwd())
+def pwd(input, output, args):
+    output.append(os.getcwd())

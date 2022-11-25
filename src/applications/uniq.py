@@ -6,5 +6,5 @@ from collections import deque
 from glob import glob
 
 
-def uniq(cmdline, out, args):
+def uniq(input, output, args):
     return

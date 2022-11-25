@@ -6,7 +6,7 @@ from collections import deque
 from glob import glob
 
 
-def grep(cmdline, out, args):
+def grep(input, output, args):
     if len(args) < 2:
         raise ValueError("wrong number of command line arguments")
     pattern = args[0]
@@ -17,6 +17,6 @@ def grep(cmdline, out, args):
             for line in lines:
                 if re.match(pattern, line):
                     if len(files) > 1:
-                        out.append(f"{file}:{line}")
+                        output.append(f"{file}:{line}")
                     else:
-                        out.append(line)
+                        output.append(line)
