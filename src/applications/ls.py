@@ -6,7 +6,7 @@ from collections import deque
 from glob import glob
 
 
-def ls(cmdline, out, args):
+def ls(input, output, args):
     if len(args) == 0:
         ls_dir = os.getcwd()
     elif len(args) > 1:
@@ -15,4 +15,4 @@ def ls(cmdline, out, args):
         ls_dir = args[0]
     for f in listdir(ls_dir):
         if not f.startswith("."):
-            out.append(f + "\n")
+            output.append(f + "\n")

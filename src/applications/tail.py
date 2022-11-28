@@ -6,7 +6,7 @@ from collections import deque
 from glob import glob
 
 
-def tail(cmdline, out, args):
+def tail(input, output, args):
     if len(args) != 1 and len(args) != 3:
         raise ValueError("wrong number of command line arguments")
     if len(args) == 1:
@@ -22,4 +22,4 @@ def tail(cmdline, out, args):
         lines = f.readlines()
         display_length = min(len(lines), num_lines)
         for i in range(0, display_length):
-            out.append(lines[len(lines) - display_length + i])
+            output.append(lines[len(lines) - display_length + i])

@@ -6,5 +6,5 @@ from collections import deque
 from glob import glob
 
 
-def cut(cmdline, out, args):
+def cut(input, output, args):
     return

@@ -6,5 +6,5 @@ from collections import deque
 from glob import glob
 
 
-def find(cmdline, out, args):
+def find(input, output, args):
     return
