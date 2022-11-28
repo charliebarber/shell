@@ -7,6 +7,7 @@ from applications.head import head
 from applications.sort import sort
 from applications.tail import tail
 from applications.grep import grep
+from applications.cut import cut
 
 
 class Application:
@@ -23,6 +24,8 @@ class Application:
             echo(input, output, args)
         elif app == "ls":
             ls(input, output, args)
+        elif app == "cut":
+            cut(input, output, args)
         elif app == "cat":
             cat(input, output, args)
         elif app == "head":
