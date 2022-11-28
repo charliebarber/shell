@@ -2,20 +2,11 @@ import imp
 import re
 import sys
 import os
+from application import Application
 
 from os import listdir
 from collections import deque
 from glob import glob
-
-from applications.pwd import pwd
-from applications.cd import cd
-from applications.echo import echo
-from applications.ls import ls
-from applications.cat import cat
-from applications.head import head
-from applications.sort import sort
-from applications.tail import tail
-from applications.grep import grep
 
 
 # TODO: Split each command into individual files
@@ -40,26 +31,9 @@ def eval(cmdline, out):
                     tokens.append(m.group(0))
         app = tokens[0]
         args = tokens[1:]
-        if app == "pwd":
-            pwd(cmdline, out, args)
-        elif app == "cd":
-            cd(cmdline, out, args)
-        elif app == "echo":
-            echo(cmdline, out, args)
-        elif app == "ls":
-            ls(cmdline, out, args)
-        elif app == "cat":
-            cat(cmdline, out, args)
-        elif app == "head":
-            head(cmdline, out, args)
-        elif app == "tail":
-            tail(cmdline, out, args)
-        elif app == "grep":
-            grep(cmdline, out, args)
-        elif app == "sort":
-            sort(cmdline, out, args)
-        else:
-            raise ValueError(f"unsupported application {app}")
+
+    application = Application()
+    application.exec(args, cmdline, out, app)
 
 
 if __name__ == "__main__":

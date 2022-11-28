@@ -6,7 +6,7 @@ from collections import deque
 from glob import glob
 
 
-def cat(cmdline, out, args):
+def cat(input, output, args):
     for a in args:
         with open(a) as f:
-            out.append(f.read())
+            output.append(f.read())

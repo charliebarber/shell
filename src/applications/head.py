@@ -6,7 +6,7 @@ from collections import deque
 from glob import glob
 
 
-def head(cmdline, out, args):
+def head(input, output, args):
     if len(args) != 1 and len(args) != 3:
         raise ValueError("wrong number of command line arguments")
     if len(args) == 1:
@@ -21,4 +21,4 @@ def head(cmdline, out, args):
     with open(file) as f:
         lines = f.readlines()
         for i in range(0, min(len(lines), num_lines)):
-            out.append(lines[i])
+            output.append(lines[i])

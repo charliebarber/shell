@@ -6,7 +6,7 @@ from collections import deque
 from glob import glob
 
 
-def sort(cmdline, out, args):
+def sort(input, output, args):
     rev = 0  # reverse order true/false
     if len(args) > 2:
         raise ValueError("wrong number of command line arguments")
@@ -27,4 +27,4 @@ def sort(cmdline, out, args):
         contents = contents[::-1]
 
     for line in contents:
-        out.append(line + "\n")
+        output.append(line + "\n")
