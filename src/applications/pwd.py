@@ -7,4 +7,4 @@ from glob import glob
 
 
 def pwd(cmdline, out, args):
-    out.append(os.getcwd())
+    out.append(os.getcwd() + "\n")
