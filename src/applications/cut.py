@@ -13,27 +13,36 @@ def cut(input, output, args):
         raise ValueError("wrong flags")
 
     bytes = args[1].split(",")
+    indexs = []
     file = args[2]
 
     with open(file) as f:
         lines = f.readlines()
-        for i in range(0, len(lines)):
-            line = lines[i].strip("\n")
-            newLine = ""
-            for byte in bytes:
-                if "-" not in byte:
-                    if int(byte) > len(line):
-                        break
-                    else:
-                        newLine = newLine + line[int(byte) - 1]
-                elif byte[0] == "-":
-                    newLine = newLine + line[: int(byte[1:])]
-                elif byte[-1] == "-":
-                    newLine = newLine + line[int(byte[:-1]) - 1 :]
-                else:
-                    indexRange = byte.split("-")
-                    newLine = (
-                        newLine + line[int(indexRange[0]) - 1 : (int(indexRange[1]))]
-                    )
 
+        for byte in bytes:
+            if "-" not in byte:
+                if (int(byte) - 1) not in indexs:
+                    indexs.append(int(byte) - 1)
+            elif byte[0] == "-":
+                for i in range(0, int(byte[1:])):
+                    if i not in indexs:
+                        indexs.append(i)
+            elif byte[-1] == "-":
+                for i in range(int(byte[:-1]) - 1, len(max(lines, key=len))):
+                    if i not in indexs:
+                        indexs.append(i)
+            else:
+                indexRange = byte.split("-")
+                for i in range(int(indexRange[0]) - 1, int(indexRange[1])):
+                    if i not in indexs:
+                        indexs.append(i)
+
+        indexs.sort()
+
+        for line in lines:
+            line = line.strip("\n")
+            newLine = ""
+            for i in indexs:
+                if i < len(line):
+                    newLine = newLine + line[i]
             output.append(newLine + "\n")
