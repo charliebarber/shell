@@ -8,6 +8,7 @@ from applications.sort import sort
 from applications.tail import tail
 from applications.grep import grep
 from applications.cut import cut
+from applications.uniq import uniq
 
 
 class Application:
@@ -36,5 +37,7 @@ class Application:
             grep(input, output, args)
         elif app == "sort":
             sort(input, output, args)
+        elif app == "uniq":
+            uniq(input, output, args)
         else:
             raise ValueError(f"unsupported application {app}")
