@@ -22,16 +22,18 @@ def cut(input, output, args):
             newLine = ""
             for byte in bytes:
                 if "-" not in byte:
-                    if int(byte) >= len(line):
+                    if int(byte) > len(line):
                         break
                     else:
-                        newLine = newLine + line[int(byte)]
+                        newLine = newLine + line[int(byte) - 1]
                 elif byte[0] == "-":
                     newLine = newLine + line[: int(byte[1:])]
                 elif byte[-1] == "-":
-                    newLine = newLine + line[int(byte[:-1]) :]
+                    newLine = newLine + line[int(byte[:-1]) - 1 :]
                 else:
                     indexRange = byte.split("-")
-                    newLine = newLine + line[int(indexRange[0]) : int(indexRange[1])]
+                    newLine = (
+                        newLine + line[int(indexRange[0]) - 1 : (int(indexRange[1]))]
+                    )
 
             output.append(newLine + "\n")
