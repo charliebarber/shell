@@ -28,10 +28,18 @@ def uniq(input, output, args):
         for i in range(0, len(contents) - 1):
             if contents[i] == contents[i + 1]:
                 indexToRemove.append(i + 1)
+
     elif case == 1:
         for i in range(0, len(contents) - 1):
-            if contents[i].lower() == contents[i + 1].lower():
-                indexToRemove.append(i + 1)
+            j = i
+            while (j + 1) < len(contents) and contents[j].lower() == contents[
+                j + 1
+            ].lower():
+                if (j + 1) not in indexToRemove:
+                    indexToRemove.append(j + 1)
+                j += 1
+
+    indexToRemove.sort(reverse=True)
 
     for index in indexToRemove:
         contents.pop(index)
