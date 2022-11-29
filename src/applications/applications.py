@@ -8,7 +8,7 @@ from glob import glob
 from abc import ABC, abstractmethod
 
 class Application(ABC):
-    """"
+    """
     Application is an abstract base class for all applications to inherit from
     """
 
@@ -39,8 +39,7 @@ class Pwd(Application):
         pass
 
     def exec(self, args, input, output) -> None:
-        print("called with", os.getcwd())
-        output.append(os.getcwd())
+        output.append(os.getcwd() + '\n')
 
 
 # TODO Fix error handling in Cd class - type hints
@@ -194,7 +193,6 @@ class Grep(Application):
                             output.append(line)
 
 
-# TODO Implement cut from Alistairs branch
 class Cut(Application):
     """
     Cut implements the 'cut' shell function
@@ -206,7 +204,45 @@ class Cut(Application):
         pass
 
     def exec(self, args, input, output) -> None:    
-        pass
+        if len(args) != 3:
+            raise ValueError("wrong number of command line arguments")
+        if args[0] != "-b":
+            raise ValueError("wrong flags")
+
+        bytes = args[1].split(",")
+        indexs = []
+        file = args[2]
+
+        with open(file) as f:
+            lines = f.readlines()
+
+            for byte in bytes:
+                if "-" not in byte:
+                    if (int(byte) - 1) not in indexs:
+                        indexs.append(int(byte) - 1)
+                elif byte[0] == "-":
+                    for i in range(0, int(byte[1:])):
+                        if i not in indexs:
+                            indexs.append(i)
+                elif byte[-1] == "-":
+                    for i in range(int(byte[:-1]) - 1, len(max(lines, key=len))):
+                        if i not in indexs:
+                            indexs.append(i)
+                else:
+                    indexRange = byte.split("-")
+                    for i in range(int(indexRange[0]) - 1, int(indexRange[1])):
+                        if i not in indexs:
+                            indexs.append(i)
+
+            indexs.sort()
+
+            for line in lines:
+                line = line.strip("\n")
+                newLine = ""
+                for i in indexs:
+                    if i < len(line):
+                        newLine = newLine + line[i]
+                output.append(newLine + "\n")
 
 
 # TODO Implement find from Robins branch
@@ -224,7 +260,6 @@ class Find(Application):
         pass
 
 
-# TODO Implement Uniq from Alistairs branch
 class Uniq(Application):
     """
     Uniq implements the 'uniq' shell function
@@ -236,7 +271,45 @@ class Uniq(Application):
         pass
 
     def exec(self, args, input, output) -> None:    
-        pass
+        if len(args) > 2:
+            raise ValueError("wrong number of command line arguments")
+        if len(args) == 1:
+            file = args[0]
+            case = 0
+        if len(args) == 2:
+            if args[0] != "-i":
+                raise ValueError("wrong flags")
+            else:
+                case = 1
+                file = args[1]
+
+        with open(file, "r") as f:
+            contents = f.read().splitlines()
+
+        indexToRemove = []
+
+        if case == 0:
+            for i in range(0, len(contents) - 1):
+                if contents[i] == contents[i + 1]:
+                    indexToRemove.append(i + 1)
+
+        elif case == 1:
+            for i in range(0, len(contents) - 1):
+                j = i
+                while (j + 1) < len(contents) and contents[j].lower() == contents[
+                    j + 1
+                ].lower():
+                    if (j + 1) not in indexToRemove:
+                        indexToRemove.append(j + 1)
+                    j += 1
+
+        indexToRemove.sort(reverse=True)
+
+        for index in indexToRemove:
+            contents.pop(index)
+
+        for line in contents:
+            output.append(line + "\n") 
 
 
 # TODO Implement sort from Robins branch
