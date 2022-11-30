@@ -258,7 +258,27 @@ class Find(Application):
         pass
 
     def exec(self, args, input, output) -> None:
-        pass
+        initPathLength = len(os.getcwd())
+
+        def recursive_find(path):
+            files = os.listdir(path)
+            for file in files:
+                newPath = os.path.join(path, file)
+                if args[0] != "-name":
+                    output.append(newPath + "\n")
+                elif args[0] == "-name":
+                    #replaces absolute path with relative path if no directory is given.
+                    output.append(newPath[initPathLength:] + "\n")
+
+                if os.path.isdir(newPath):
+                    recursive_find(newPath)
+
+        path = args[0]
+        if args[0] == "-name":
+            path = os.getcwd()
+
+        if args[len(args) - 1] == "-name":
+            recursive_find(path)
 
 
 class Uniq(Application):
