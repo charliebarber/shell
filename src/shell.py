@@ -2,21 +2,27 @@ import imp
 import re
 import sys
 import os
-from application import Application
+from applications.factory import get_application
 
 from os import listdir
 from collections import deque
 from glob import glob
 
 
-# TODO: Split each command into individual files
+def eval(cmdline, out) -> None:
+    """
+    eval takes in cmdline input and parses it.
+    It interprets the command and runs the correct application.
+    Adds output to the output queue given as an arg.
+    """
 
-
-def eval(cmdline, out):
+    # raw_commands stores the parsed commands before interpretation
     raw_commands = []
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
+        print(m)
         if m.group(0):
             raw_commands.append(m.group(0))
+
     for command in raw_commands:
         tokens = []
         for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
@@ -32,8 +38,8 @@ def eval(cmdline, out):
         app = tokens[0]
         args = tokens[1:]
 
-    application = Application()
-    application.exec(args, cmdline, out, app)
+    application = get_application(app)
+    application.exec(args, cmdline, out)
 
 
 if __name__ == "__main__":
