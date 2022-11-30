@@ -9,11 +9,20 @@ from collections import deque
 from glob import glob
 
 
-def eval(cmdline, out):
+def eval(cmdline, out) -> None:
+    """
+    eval takes in cmdline input and parses it.
+    It interprets the command and runs the correct application.
+    Adds output to the output queue given as an arg.
+    """
+
+    # raw_commands stores the parsed commands before interpretation
     raw_commands = []
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
+        print(m)
         if m.group(0):
             raw_commands.append(m.group(0))
+
     for command in raw_commands:
         tokens = []
         for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
