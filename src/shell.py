@@ -19,7 +19,7 @@ def eval(cmdline, out) -> None:
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
-        print(m)
+        # print(m)
         if m.group(0):
             raw_commands.append(m.group(0))
 

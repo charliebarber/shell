@@ -7,6 +7,7 @@ from glob import glob
 
 from abc import ABC, abstractmethod
 
+
 class Application(ABC):
     """
     Application is an abstract base class for all applications to inherit from
@@ -17,7 +18,7 @@ class Application(ABC):
         pass
 
 
-class UnsafeDecorator():
+class UnsafeDecorator:
     """
     UnsafeDecorator ....
     """
@@ -39,7 +40,7 @@ class Pwd(Application):
         pass
 
     def exec(self, args, input, output) -> None:
-        output.append(os.getcwd() + '\n')
+        output.append(os.getcwd() + "\n")
 
 
 # TODO Fix error handling in Cd class - type hints
@@ -55,14 +56,14 @@ class Cd(Application):
     def exec(self, args, input, output) -> None:
         if len(args) == 0 or len(args) > 1:
             raise ValueError("wrong number of command line arguments")
-        os.chdir(args[0]) 
+        os.chdir(args[0])
 
 
 class Ls(Application):
     """
     Ls implements the 'ls' shell function
-    Lists the content of a directory. 
-    It prints list of files and directories separated by tabs and followed by a newline. 
+    Lists the content of a directory.
+    It prints list of files and directories separated by tabs and followed by a newline.
     Ignores files and directories whose names start with '.' .
     """
 
@@ -203,7 +204,7 @@ class Cut(Application):
     def __init__(self) -> None:
         pass
 
-    def exec(self, args, input, output) -> None:    
+    def exec(self, args, input, output) -> None:
         if len(args) != 3:
             raise ValueError("wrong number of command line arguments")
         if args[0] != "-b":
@@ -250,13 +251,13 @@ class Find(Application):
     """
     Find implements the 'find' shell function
     It recursively searches for files with matching names
-    Outputs list of relative paths, each followed by newline 
+    Outputs list of relative paths, each followed by newline
     """
 
     def __init__(self) -> None:
         pass
 
-    def exec(self, args, input, output) -> None:    
+    def exec(self, args, input, output) -> None:
         pass
 
 
@@ -270,7 +271,7 @@ class Uniq(Application):
     def __init__(self) -> None:
         pass
 
-    def exec(self, args, input, output) -> None:    
+    def exec(self, args, input, output) -> None:
         if len(args) > 2:
             raise ValueError("wrong number of command line arguments")
         if len(args) == 1:
@@ -309,7 +310,7 @@ class Uniq(Application):
             contents.pop(index)
 
         for line in contents:
-            output.append(line + "\n") 
+            output.append(line + "\n")
 
 
 # TODO Implement sort from Robins branch
@@ -323,5 +324,25 @@ class Sort(Application):
     def __init__(self) -> None:
         pass
 
-    def exec(self, args, input, output) -> None:    
-        pass
+    def exec(self, args, input, output) -> None:
+        rev = 0  # reverse order true/false
+        if len(args) > 2:
+            raise ValueError("wrong number of command line arguments")
+        if len(args) == 1:
+            file = args[0]
+        if len(args) == 2:
+            if args[0] != "-r":
+                raise ValueError("wrong flags")
+            else:
+                rev = 1
+                file = args[1]
+
+        with open(file, "r") as f:
+            contents = f.read().splitlines()
+
+        contents.sort()
+        if rev == 1:
+            contents = contents[::-1]
+
+        for line in contents:
+            output.append(line + "\n")
