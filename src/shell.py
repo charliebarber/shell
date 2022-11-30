@@ -19,7 +19,7 @@ def eval(cmdline, out) -> None:
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
 
-    # Finds all matches of the pattern and appends them to raw_commands
+    # Finds all commands seperated by semicolons and appends each to raw_commands
     for m in re.finditer("([^;].[^;]+)", cmdline):
         print(m)
         if m.group(0):
