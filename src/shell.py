@@ -18,14 +18,22 @@ def eval(cmdline, out) -> None:
 
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
+
+    # Finds all matches of the pattern and appends them to raw_commands
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
         print(m)
         if m.group(0):
             raw_commands.append(m.group(0))
 
+    # print(raw_commands)
+
+    # Commands in sequence are added to a queue and popped in order
+    seq_queue = deque() 
+
     for command in raw_commands:
         tokens = []
         for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
+            # print(m)
             if m.group(1) or m.group(2):
                 quoted = m.group(0)
                 tokens.append(quoted[1:-1])
@@ -38,8 +46,13 @@ def eval(cmdline, out) -> None:
         app = tokens[0]
         args = tokens[1:]
 
-    application = get_application(app)
-    application.exec(args, cmdline, out)
+        # Append pair of app and its args to the sequence queue
+        seq_queue.append((app, args))
+
+    while seq_queue:
+        app, args = seq_queue.popleft()
+        application = get_application(app)
+        application.exec(args, cmdline, out)
 
 
 if __name__ == "__main__":
