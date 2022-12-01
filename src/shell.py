@@ -9,6 +9,7 @@ from os import listdir
 from collections import deque
 from glob import glob
 
+
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
     eval_cmd takes in a command string and parses it.
@@ -29,7 +30,8 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     app = tokens[0]
     args = tokens[1:]
 
-    return (app, args)    
+    return (app, args)
+
 
 def eval(cmdline, out) -> None:
     """
@@ -50,17 +52,16 @@ def eval(cmdline, out) -> None:
     # print(raw_commands)
 
     # Commands in sequence are added to a queue and popped in order
-    seq_queue = deque() 
+    seq_queue = deque()
 
     for command in raw_commands:
-        
+
         # Handle pipeline commands
         # prev_output = ""
         # Regex to seperate by | chars
         # for m in re.finditer("([^\|].?[^\|]+)", command):
-            
+
         evaluated = eval_cmd(command)
-        
 
         # Append pair of app and its args to the sequence queue
         seq_queue.append(evaluated)
@@ -68,11 +69,20 @@ def eval(cmdline, out) -> None:
     while seq_queue:
         app, args = seq_queue.popleft()
         application = get_application(app)
+
+        if ">" in args:
+            output_redirect_file = args[args.index(">") + 1]
+            args = args[: args.index(">")]
+
         app_outputs = application.exec(args, cmdline)
 
-        for output in app_outputs:
-            out.append(output)
-
+        if output_redirect_file:
+            f = open(output_redirect_file, "w")
+            for output in app_outputs:
+                f.write(output)
+        else:
+            for output in app_outputs:
+                out.append(output)
 
 
 if __name__ == "__main__":
