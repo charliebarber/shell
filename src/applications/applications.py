@@ -275,11 +275,25 @@ class Find(Application):
                     recursive_find(newPath)
 
         path = args[0]
+        print(args)
         if args[0] == "-name":
             path = os.getcwd()
 
         if args[len(args) - 1] == "-name":
             recursive_find(path)
+
+        else:
+            print("A")
+            print(path)
+            print("ARG: ", args[len(args) - 1])
+            print("ALL ARGS: ", args)
+            s = (args[len(args) - 1])[1:-1]
+            concPath = path + "/**/" + s
+            print(concPath)
+            print("Using glob.glob()")
+            files = glob.glob(concPath, recursive = True)
+            for file in files:
+                output.append(file + "\n")
 
 
 class Uniq(Application):
