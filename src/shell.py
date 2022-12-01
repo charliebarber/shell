@@ -52,7 +52,11 @@ def eval(cmdline, out) -> None:
     while seq_queue:
         app, args = seq_queue.popleft()
         application = get_application(app)
-        application.exec(args, cmdline, out)
+        app_outputs = application.exec(args, cmdline)
+
+        for output in app_outputs:
+            out.append(output)
+
 
 
 if __name__ == "__main__":
