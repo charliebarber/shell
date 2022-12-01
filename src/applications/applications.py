@@ -71,8 +71,6 @@ class Ls(Application):
         pass
 
     def exec(self, args, input, output) -> None:
-        print("exec")
-        print("args", args)
         if len(args) == 0:
             ls_dir = os.getcwd()
         elif len(args) > 1:
