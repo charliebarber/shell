@@ -98,9 +98,12 @@ class Cat(Application):
         pass
 
     def exec(self, args, input) -> str:
+        output = []
         for a in args:
             with open(a) as f:
-                return f.read()
+                output.append(f.read())
+
+        return output
 
 
 class Echo(Application):
