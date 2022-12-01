@@ -3,7 +3,7 @@ import sys
 import os
 from os import listdir
 from collections import deque
-from glob import glob
+import glob
 
 from abc import ABC, abstractmethod
 
@@ -281,7 +281,44 @@ class Find(Application):
         pass
 
     def exec(self, args, input) -> str:
-        pass
+        output = []
+        initPathLength = len(os.getcwd())
+
+        def recursive_find(path):
+            files = os.listdir(path)
+            for file in files:
+                newPath = os.path.join(path, file)
+                if args[0] != "-name":
+                    output.append(newPath + "\n")
+                elif args[0] == "-name":
+                    #replaces absolute path with relative path if no directory is given.
+                    output.append("." + newPath[initPathLength:] + "\n")
+
+                if os.path.isdir(newPath):
+                    recursive_find(newPath)
+
+        path = args[0]
+        
+        if args[0] == "-name":
+            path = os.getcwd()
+
+        if args[len(args) - 1] == "-name":
+            recursive_find(path)
+
+        #If globbing wildcard is given, this runs instead.
+        else:
+            s = (args[len(args) - 1])
+            concPath = path + "/**/" + s
+            files = glob.glob(concPath, recursive = True)
+            if args[0] != "-name":
+                for file in files:
+                    output.append(file + "\n")
+            elif args[0] == "-name":
+                for file in files:
+                    output.append("." + file[initPathLength:] + "\n")
+            
+
+        return output
 
 
 class Uniq(Application):
