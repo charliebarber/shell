@@ -21,11 +21,11 @@ def eval(cmdline, out) -> None:
 
     # Finds all commands seperated by semicolons and appends each to raw_commands
     for m in re.finditer("([^;].[^;]+)", cmdline):
-        print(m)
+        # print(m)
         if m.group(0):
             raw_commands.append(m.group(0))
 
-    print(raw_commands)
+    # print(raw_commands)
 
     # Commands in sequence are added to a queue and popped in order
     seq_queue = deque() 
@@ -33,7 +33,7 @@ def eval(cmdline, out) -> None:
     for command in raw_commands:
         tokens = []
         for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-            print(m)
+            # print(m)
             if m.group(1) or m.group(2):
                 quoted = m.group(0)
                 tokens.append(quoted[1:-1])
