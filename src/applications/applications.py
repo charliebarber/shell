@@ -78,6 +78,7 @@ class Ls(Application):
         else:
             ls_dir = args[0]
         for f in listdir(ls_dir):
+            print(f)
             if not f.startswith("."):
                 output.append(f + "\n")
 
