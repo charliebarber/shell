@@ -2,13 +2,38 @@ import imp
 import re
 import sys
 import os
+from typing import List, Tuple
 from applications.factory import get_application
 
 from os import listdir
 from collections import deque
 from glob import glob
 
+
 command_history = []
+def eval_cmd(command: str) -> Tuple[str, List[str]]:
+    """
+    eval_cmd takes in a command string and parses it.
+    It returns the app and arguments as a tuple.
+    """
+    tokens = []
+    for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
+        # print(m)
+        if m.group(1) or m.group(2):
+            quoted = m.group(0)
+            tokens.append(quoted[1:-1])
+        else:
+            globbing = glob(m.group(0))
+            if globbing:
+                tokens.extend(globbing)
+            else:
+                tokens.append(m.group(0))
+    app = tokens[0]
+    args = tokens[1:]
+
+    return (app, args)
+
+
 def eval(cmdline, out) -> None:
     """
     eval takes in cmdline input and parses it.
@@ -18,33 +43,47 @@ def eval(cmdline, out) -> None:
 
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
-    print(raw_commands)
-    for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
+
+    # Finds all commands seperated by semicolons and appends each to raw_commands
+    for m in re.finditer("([^;].?[^;]+)", cmdline):
         # print(m)
         if m.group(0):
             raw_commands.append(m.group(0))
 
-    for command in raw_commands:
-        tokens = []
-        for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-            if m.group(1) or m.group(2):
-                quoted = m.group(0)
-                tokens.append(quoted[1:-1])
-            else:
-                globbing = glob(m.group(0))
-                if globbing:
-                    tokens.extend(globbing)
-                else:
-                    tokens.append(m.group(0))
-        app = tokens[0] 
-        args = tokens[1:]
+    # print(raw_commands)
 
-    print(raw_commands)
-    command_history.append(raw_commands[len(raw_commands) - 1])
-    print(command_history)
-    
-    application = get_application(app)
-    application.exec(args, cmdline, out)
+    # Commands in sequence are added to a queue and popped in order
+    seq_queue = deque()
+
+    for command in raw_commands:
+
+        # Handle pipeline commands
+        # prev_output = ""
+        # Regex to seperate by | chars
+        # for m in re.finditer("([^\|].?[^\|]+)", command):
+
+        evaluated = eval_cmd(command)
+
+        # Append pair of app and its args to the sequence queue
+        seq_queue.append(evaluated)
+
+    while seq_queue:
+        app, args = seq_queue.popleft()
+        application = get_application(app)
+
+        if ">" in args:
+            output_redirect_file = args[args.index(">") + 1]
+            args = args[: args.index(">")]
+
+        app_outputs = application.exec(args, cmdline)
+
+        if output_redirect_file:
+            f = open(output_redirect_file, "w")
+            for output in app_outputs:
+                f.write(output)
+        else:
+            for output in app_outputs:
+                out.append(output)
 
 
 if __name__ == "__main__":
