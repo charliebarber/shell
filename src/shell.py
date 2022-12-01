@@ -8,7 +8,7 @@ from applications.factory import get_application
 from os import listdir
 from collections import deque
 from glob import glob
-
+import readline
 
 command_history = []
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
