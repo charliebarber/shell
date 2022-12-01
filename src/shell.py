@@ -20,7 +20,7 @@ def eval(cmdline, out) -> None:
     raw_commands = []
 
     # Finds all commands seperated by semicolons and appends each to raw_commands
-    for m in re.finditer("([^;].[^;]+)", cmdline):
+    for m in re.finditer("([^;].?[^;]+)", cmdline):
         # print(m)
         if m.group(0):
             raw_commands.append(m.group(0))

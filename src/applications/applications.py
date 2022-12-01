@@ -71,6 +71,8 @@ class Ls(Application):
         pass
 
     def exec(self, args, input, output) -> None:
+        print("exec")
+        print("args", args)
         if len(args) == 0:
             ls_dir = os.getcwd()
         elif len(args) > 1:
@@ -78,6 +80,7 @@ class Ls(Application):
         else:
             ls_dir = args[0]
         for f in listdir(ls_dir):
+            print(f)
             if not f.startswith("."):
                 output.append(f + "\n")
 
