@@ -9,7 +9,6 @@ from os import listdir
 from collections import deque
 from glob import glob
 
-
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
     eval_cmd takes in a command string and parses it.
@@ -70,6 +69,7 @@ def eval(cmdline, out) -> None:
         app, args = seq_queue.popleft()
         application = get_application(app)
 
+        output_redirect_file = ""
         if ">" in args:
             output_redirect_file = args[args.index(">") + 1]
             args = args[: args.index(">")]
