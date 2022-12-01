@@ -8,7 +8,7 @@ from os import listdir
 from collections import deque
 from glob import glob
 
-
+command_history = []
 def eval(cmdline, out) -> None:
     """
     eval takes in cmdline input and parses it.
@@ -18,6 +18,7 @@ def eval(cmdline, out) -> None:
 
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
+    print(raw_commands)
     for m in re.finditer("([^\"';]+|\"[^\"]*\"|'[^']*')", cmdline):
         # print(m)
         if m.group(0):
@@ -35,9 +36,13 @@ def eval(cmdline, out) -> None:
                     tokens.extend(globbing)
                 else:
                     tokens.append(m.group(0))
-        app = tokens[0]
+        app = tokens[0] 
         args = tokens[1:]
 
+    print(raw_commands)
+    command_history.append(raw_commands[len(raw_commands) - 1])
+    print(command_history)
+    
     application = get_application(app)
     application.exec(args, cmdline, out)
 
