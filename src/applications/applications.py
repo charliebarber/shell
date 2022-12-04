@@ -293,17 +293,17 @@ class Find(Application):
                 elif args[0] == "-name":
                     #replaces absolute path with relative path if no directory is given.
                     output.append("." + newPath[initPathLength:] + "\n")
-
                 if os.path.isdir(newPath):
                     recursive_find(newPath)
 
         path = args[0]
-        
-        if args[0] == "-name":
+
+        if args[0] == "-name" and len(args) > 1:
             path = os.getcwd()
+            recursive_find(path)
 
         if args[len(args) - 1] == "-name":
-            recursive_find(path)
+            raise ValueError("-name requires additional arguments.")
 
         #If globbing wildcard is given, this runs instead.
         else:
