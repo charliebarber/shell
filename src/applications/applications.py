@@ -96,8 +96,13 @@ class Cat(Application):
     def exec(self, args, input) -> str:
         output = []
         for a in args:
-            with open(a) as f:
-                output.append(f.read())
+            if "#STDIN#" in a:
+                f = a[1:]
+                for x in f:
+                    output.append(x)
+            else:
+                with open(a) as f:
+                    output.append(f.read())
 
         return output
 

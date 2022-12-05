@@ -95,13 +95,9 @@ def eval(cmdline, out) -> None:
                 output_redirect_file = args[args.index(">") + 1]
                 args = args[: args.index(">")]
 
-<<<<<<< HEAD
-            # Exec the app and store the output
-=======
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
->>>>>>> master
             app_outputs = application.exec(args, cmdline)
 
             # Write output to file if provided
@@ -126,13 +122,9 @@ def eval(cmdline, out) -> None:
                 output_redirect_file = args[args.index(">") + 1]
                 args = args[: args.index(">")]
 
-<<<<<<< HEAD
-            # Exec the app and store the output
-=======
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
->>>>>>> master
             app_outputs = application.exec(args, cmdline)
             
             # Write output to file if provided
