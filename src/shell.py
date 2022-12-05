@@ -34,6 +34,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     return (app, args)
 
+
 # def run_cmd(app, args, out):
 #     application = get_application(app)
 #     output_redirect_file = ""
@@ -75,12 +76,10 @@ def eval(cmdline, out) -> None:
 
     # print(raw_commands)
 
-
-
     while seq_queue:
         command = seq_queue.popleft()
 
-        if '|' in command:
+        if "|" in command:
             cmds = []
             # Regex to seperate by | chars
             for m in re.finditer("([^\|].?[^\|]+)", command):
@@ -109,12 +108,13 @@ def eval(cmdline, out) -> None:
             # print("app args", app, args)
             if prev_out:
                 prev_out.insert(0, "#STDIN#")
-                # print("newprev", prev_out) 
+                # print("newprev", prev_out)
                 args.append(prev_out)
 
             # seq_queue.appendleft(evaluated)
             # print(app, args)
             application = get_application(app)
+
             output_redirect_file = ""
             if ">" in args:
                 output_redirect_file = args[args.index(">") + 1]
@@ -130,13 +130,13 @@ def eval(cmdline, out) -> None:
             else:
                 for output in app_outputs:
                     out.append(output)
-            
-                    
+
         else:
             app, args = eval_cmd(command)
             # print(app, args)
 
             application = get_application(app)
+
             output_redirect_file = ""
             if ">" in args:
                 output_redirect_file = args[args.index(">") + 1]
@@ -151,7 +151,7 @@ def eval(cmdline, out) -> None:
             else:
                 for output in app_outputs:
                     out.append(output)
-            
+
 
 def input_redirection(args: List[str]) -> List[str]:
     reformated_args = []
@@ -176,12 +176,13 @@ def input_redirection(args: List[str]) -> List[str]:
 
     return reformated_args
 
+
 def complete(text, state):
-    return (glob.glob(text+'*')+[None])[state]
+    return (glob.glob(text + "*") + [None])[state]
 
 
 if __name__ == "__main__":
-    readline.set_completer_delims(' \t\n;')
+    readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(complete)
     args_num = len(sys.argv) - 1
