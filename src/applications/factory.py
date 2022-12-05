@@ -1,4 +1,18 @@
-from applications.applications import Pwd, Cd, Ls, Cat, Echo, Head, Tail, Grep, Cut, Find, Uniq, Sort
+from applications.applications import (
+    Pwd,
+    Cd,
+    Ls,
+    Cat,
+    Echo,
+    Head,
+    Tail,
+    Grep,
+    Cut,
+    Find,
+    Uniq,
+    Sort,
+)
+
 
 def get_application(call) -> object:
     """
@@ -7,19 +21,31 @@ def get_application(call) -> object:
     """
 
     factory = {
-        "pwd": Pwd,
-        "cd": Cd,
-        "ls": Ls,
-        "cat": Cat,
-        "echo": Echo,
-        "head": Head,
-        "tail": Tail,
-        "grep": Grep,
-        "cut": Cut,
-        "find": Find,
-        "uniq": Uniq,
-        "sort": Sort
+        "pwd": Pwd(False),
+        "cd": Cd(False),
+        "ls": Ls(False),
+        "cat": Cat(False),
+        "echo": Echo(False),
+        "head": Head(False),
+        "tail": Tail(False),
+        "grep": Grep(False),
+        "cut": Cut(False),
+        "find": Find(False),
+        "uniq": Uniq(False),
+        "sort": Sort(False),
+        "_ls": Ls(True),
+        "_pwd": Pwd(True),
+        "_cd": Cd(True),
+        "_cat": Cat(True),
+        "_echo": Echo(True),
+        "_head": Head(True),
+        "_tail": Tail(True),
+        "_grep": Grep(True),
+        "_cut": Cut(True),
+        "_find": Find(True),
+        "_uniq": Uniq(True),
+        "_sort": Sort(True),
     }
 
     # Instantiate new Application object and return it
-    return factory[call]()
+    return factory[call]
