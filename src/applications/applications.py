@@ -8,7 +8,7 @@ import glob
 from abc import ABC, abstractmethod
 
 
-class Application(ABC):
+class ApplicationInterface(ABC):
     """
     Application is an abstract base class for all applications to inherit from
     It takes in arguments and returns the output ready for the output stream
@@ -17,6 +17,12 @@ class Application(ABC):
     @abstractmethod
     def exec(self, args, input) -> str:
         pass
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Pwd(Application):
@@ -30,12 +36,6 @@ class Pwd(Application):
 
     def exec(self, args, input) -> str:
         return os.getcwd() + "\n"
-
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
 
 
 # TODO Fix error handling in Cd class - type hints
@@ -55,11 +55,6 @@ class Cd(Application):
         os.chdir(args[0])
         return output
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
 
 
 class Ls(Application):
@@ -89,12 +84,6 @@ class Ls(Application):
 
         return output
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
-
 
 class Cat(Application):
     """
@@ -112,12 +101,6 @@ class Cat(Application):
                 output.append(f.read())
 
         return output
-
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
 
 
 class Echo(Application):
@@ -169,12 +152,6 @@ class Head(Application):
 
             return output
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
-
 
 class Tail(Application):
     """
@@ -208,11 +185,6 @@ class Tail(Application):
 
         return output
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
 
 
 class Grep(Application):
@@ -244,11 +216,6 @@ class Grep(Application):
 
         return output
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
 
 
 class Cut(Application):
@@ -305,12 +272,6 @@ class Cut(Application):
 
         return output
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
-
 
 # TODO Implement find from Robins branch
 class Find(Application):
@@ -364,7 +325,6 @@ class Find(Application):
 
         return output
 
-    def raise_error(self, message, output) -> None:
         if self.unsafe:
             output.append(message)
         else:
@@ -426,7 +386,6 @@ class Uniq(Application):
 
         return output
 
-    def raise_error(self, message, output) -> None:
         if self.unsafe:
             output.append(message)
         else:
@@ -469,9 +428,3 @@ class Sort(Application):
             output.append(line + "\n")
 
         return output
-
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
