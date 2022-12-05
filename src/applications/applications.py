@@ -333,7 +333,6 @@ class Uniq(Application):
 
     def exec(self, args, input) -> str:
         output = []
-        stdin = False
 
         if len(args) > 2:
             raise ValueError("wrong number of command line arguments")
@@ -348,8 +347,11 @@ class Uniq(Application):
                 file = args[1]
 
         if "#STDIN#" in file:
-            stdin = True 
-            contents = file[1:]
+            contents = []
+            for lines in file[1:]:
+                for line in lines.split('\n'):
+                    if line != '':
+                        contents.append(line)
         else:
             with open(file, "r") as f:
                 contents = f.read().splitlines()
@@ -377,10 +379,7 @@ class Uniq(Application):
             contents.pop(index)
 
         for line in contents:
-            if stdin:
-                output.append(line)
-            else:
-                output.append(line + "\n")
+            output.append(line + "\n")
 
         return output
 
@@ -413,8 +412,11 @@ class Sort(Application):
                 file = args[1]
 
         if "#STDIN#" in file:
-            stdin = True 
-            contents = file[1:]
+            contents = []
+            for lines in file[1:]:
+                for line in lines.split('\n'):
+                    if line != '':
+                        contents.append(line)
         else:
             with open(file, "r") as f:
                 contents = f.read().splitlines()
@@ -424,9 +426,6 @@ class Sort(Application):
             contents = contents[::-1]
 
         for line in contents:
-            if stdin:
-                output.append(line)
-            else:
-                output.append(line + "\n")
+            output.append(line + "\n")
 
         return output

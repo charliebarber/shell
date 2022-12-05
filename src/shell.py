@@ -32,6 +32,23 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     return (app, args)
 
+def run_cmd(app, args, out):
+    application = get_application(app)
+    output_redirect_file = ""
+    if ">" in args:
+        output_redirect_file = args[args.index(">") + 1]
+        args = args[: args.index(">")]
+
+    app_outputs = application.exec(args, cmdline)
+
+    if output_redirect_file:
+        f = open(output_redirect_file, "w")
+        for output in app_outputs:
+            f.write(output)
+    else:
+        for output in app_outputs:
+            out.append(output)
+
 
 def eval(cmdline, out) -> None:
     """
@@ -43,18 +60,21 @@ def eval(cmdline, out) -> None:
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
 
+    # Commands in sequence are added to a queue and popped in order
+    seq_queue = deque()
+
     # Finds all commands seperated by semicolons and appends each to raw_commands
     for m in re.finditer("([^;].?[^;]+)", cmdline):
         # print(m)
         if m.group(0):
-            raw_commands.append(m.group(0))
+            seq_queue.append(m.group(0))
 
     # print(raw_commands)
 
-    # Commands in sequence are added to a queue and popped in order
-    seq_queue = deque()
 
-    for command in raw_commands:
+
+    while seq_queue:
+        command = seq_queue.popleft()
 
         if '|' in command:
             cmds = []
@@ -71,51 +91,29 @@ def eval(cmdline, out) -> None:
                 # for arg in prev_out:
                 #     args.append(arg)
                 if prev_out:
-                    args.append("#STDIN#"+prev_out)
+                    prev_out.insert(0, "#STDIN#")
 
                 # print(args)
                 app_outputs = application.exec(args, cmdline)
                 prev_out = app_outputs
 
             # append the last command to seq queue
-            evaluated = eval_cmd(cmds[len(cmds) - 1])
+            app, args = eval_cmd(cmds[len(cmds) - 1])
             if prev_out:
-                # for arg in prev_out:
-                #     evaluated[1].append(arg)
-                # print("prev", prev_out)
                 prev_out.insert(0, "#STDIN#")
                 # print("newprev", prev_out) 
-                # print("eval before", evaluated)
-                evaluated[1].append(prev_out)
-            print(evaluated)
+                args.append(prev_out)
 
-            seq_queue.append(evaluated)
+            # seq_queue.appendleft(evaluated)
+            # print(app, args)
+            run_cmd(app, args, out)
                     
         else:
-            evaluated = eval_cmd(command)
+            app, args = eval_cmd(command)
+            # print(app, args)
 
-            # Append pair of app and its args to the sequence queue
-            seq_queue.append(evaluated)
-
-    while seq_queue:
-        app, args = seq_queue.popleft()
-        application = get_application(app)
-
-        output_redirect_file = ""
-        if ">" in args:
-            output_redirect_file = args[args.index(">") + 1]
-            args = args[: args.index(">")]
-
-        app_outputs = application.exec(args, cmdline)
-
-        if output_redirect_file:
-            f = open(output_redirect_file, "w")
-            for output in app_outputs:
-                f.write(output)
-        else:
-            for output in app_outputs:
-                out.append(output)
-
+            run_cmd(app, args, out)
+            
 
 if __name__ == "__main__":
     args_num = len(sys.argv) - 1
