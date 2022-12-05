@@ -56,15 +56,35 @@ def eval(cmdline, out) -> None:
 
     for command in raw_commands:
 
-        # Handle pipeline commands
-        # prev_output = ""
-        # Regex to seperate by | chars
-        # for m in re.finditer("([^\|].?[^\|]+)", command):
+        if '|' in command:
+            cmds = []
+            # Regex to seperate by | chars
+            for m in re.finditer("([^\|].?[^\|]+)", command):
+                if m.group(0):
+                    cmds.append(m.group(0))
 
-        evaluated = eval_cmd(command)
+            # run commands and store their output
+            prev_out = []
+            for i in range(len(cmds) - 1):
+                app, args = eval_cmd(cmds[i])
+                application = get_application(app)
+                for arg in prev_out:
+                    args.append(arg)
+                app_outputs = application.exec(args, cmdline)
+                prev_out = app_outputs
 
-        # Append pair of app and its args to the sequence queue
-        seq_queue.append(evaluated)
+            # append the last command to seq queue
+            evaluated = eval_cmd(cmds[len(cmds) - 1])
+            for arg in prev_out:
+                evaluated[1].append(arg)
+
+            seq_queue.append(evaluated)
+                    
+        else:
+            evaluated = eval_cmd(command)
+
+            # Append pair of app and its args to the sequence queue
+            seq_queue.append(evaluated)
 
     while seq_queue:
         app, args = seq_queue.popleft()
