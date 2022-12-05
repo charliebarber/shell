@@ -10,6 +10,7 @@ from collections import deque
 from glob import glob
 import readline
 
+
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
     eval_cmd takes in a command string and parses it.
@@ -27,6 +28,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
                 tokens.extend(globbing)
             else:
                 tokens.append(m.group(0))
+
     app = tokens[0]
     args = tokens[1:]
 
@@ -70,10 +72,14 @@ def eval(cmdline, out) -> None:
         app, args = seq_queue.popleft()
         application = get_application(app)
 
+        args = input_redirection(args)
+
         output_redirect_file = ""
         if ">" in args:
             output_redirect_file = args[args.index(">") + 1]
-            args = args[: args.index(">")]
+            args = args[: args.index(">")] + args[args.index(">") + 1 :]
+            if ">" in args:
+                raise ValueError("several files are specified for output redirection")
 
         app_outputs = application.exec(args, cmdline)
 
@@ -84,6 +90,30 @@ def eval(cmdline, out) -> None:
         else:
             for output in app_outputs:
                 out.append(output)
+
+
+def input_redirection(args: List[str]) -> List[str]:
+    reformated_args = []
+    for arg in args:
+        if "<" in arg and arg != "<":
+            split = list(filter(None, arg.split("<")))
+            if len(split) > 1:
+                raise ValueError("several files are specified for input redirection")
+            for item in split:
+                reformated_args.append("<")
+                reformated_args.append(item)
+        else:
+            reformated_args.append(arg)
+
+    if "<" in reformated_args:
+        reformated_args = (
+            reformated_args[: reformated_args.index("<")]
+            + reformated_args[reformated_args.index("<") + 1 :]
+        )
+        if "<" in reformated_args:
+            raise ValueError("several files are specified for input redirection")
+
+    return reformated_args
 
 
 if __name__ == "__main__":
