@@ -77,7 +77,8 @@ def eval(cmdline, out) -> None:
         output_redirect_file = ""
         if ">" in args:
             output_redirect_file = args[args.index(">") + 1]
-            args = args[: args.index(">")] + args[args.index(">") + 1 :]
+
+            args = args[: args.index(">")] + args[(args.index(">") + 2) :]
             if ">" in args:
                 raise ValueError("several files are specified for output redirection")
 
