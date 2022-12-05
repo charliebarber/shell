@@ -32,22 +32,24 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     return (app, args)
 
-def run_cmd(app, args, out):
-    application = get_application(app)
-    output_redirect_file = ""
-    if ">" in args:
-        output_redirect_file = args[args.index(">") + 1]
-        args = args[: args.index(">")]
+# def run_cmd(app, args, out):
+#     application = get_application(app)
+#     output_redirect_file = ""
+#     if ">" in args:
+#         output_redirect_file = args[args.index(">") + 1]
+#         args = args[: args.index(">")]
 
-    app_outputs = application.exec(args, cmdline)
+#     app_outputs = application.exec(args, cmdline)
+#     print("APP OUTPUTS", app_outputs)
 
-    if output_redirect_file:
-        f = open(output_redirect_file, "w")
-        for output in app_outputs:
-            f.write(output)
-    else:
-        for output in app_outputs:
-            out.append(output)
+#     if output_redirect_file:
+#         f = open(output_redirect_file, "w")
+#         for output in app_outputs:
+#             f.write(output)
+#     else:
+#         for output in app_outputs:
+#             out.append(output)
+#             print("OUT", out)
 
 
 def eval(cmdline, out) -> None:
@@ -106,13 +108,42 @@ def eval(cmdline, out) -> None:
 
             # seq_queue.appendleft(evaluated)
             # print(app, args)
-            run_cmd(app, args, out)
+            application = get_application(app)
+            output_redirect_file = ""
+            if ">" in args:
+                output_redirect_file = args[args.index(">") + 1]
+                args = args[: args.index(">")]
+
+            app_outputs = application.exec(args, cmdline)
+
+            if output_redirect_file:
+                f = open(output_redirect_file, "w")
+                for output in app_outputs:
+                    f.write(output)
+            else:
+                for output in app_outputs:
+                    out.append(output)
+            
                     
         else:
             app, args = eval_cmd(command)
             # print(app, args)
 
-            run_cmd(app, args, out)
+            application = get_application(app)
+            output_redirect_file = ""
+            if ">" in args:
+                output_redirect_file = args[args.index(">") + 1]
+                args = args[: args.index(">")]
+
+            app_outputs = application.exec(args, cmdline)
+
+            if output_redirect_file:
+                f = open(output_redirect_file, "w")
+                for output in app_outputs:
+                    f.write(output)
+            else:
+                for output in app_outputs:
+                    out.append(output)
             
 
 if __name__ == "__main__":
