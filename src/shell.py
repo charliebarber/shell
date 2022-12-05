@@ -94,13 +94,17 @@ def eval(cmdline, out) -> None:
                 #     args.append(arg)
                 if prev_out:
                     prev_out.insert(0, "#STDIN#")
+                    args.append(prev_out)
 
-                # print(args)
+                # print("args", args)
                 app_outputs = application.exec(args, cmdline)
-                prev_out = app_outputs
+                # print("outputs", app_outputs)
+                prev_out = ["".join(app_outputs)]
+                # print("prev out", prev_out)
 
             # append the last command to seq queue
             app, args = eval_cmd(cmds[len(cmds) - 1])
+            # print("app args", app, args)
             if prev_out:
                 prev_out.insert(0, "#STDIN#")
                 # print("newprev", prev_out) 
@@ -115,6 +119,7 @@ def eval(cmdline, out) -> None:
                 args = args[: args.index(">")]
 
             app_outputs = application.exec(args, cmdline)
+            # print("outputs", app_outputs)
 
             if output_redirect_file:
                 f = open(output_redirect_file, "w")
