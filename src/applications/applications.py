@@ -276,7 +276,7 @@ class Find(Application):
     It recursively searches for files with matching names
     Outputs list of relative paths, each followed by newline
     """
-
+    
     def __init__(self) -> None:
         pass
 
@@ -289,24 +289,26 @@ class Find(Application):
             for file in files:
                 newPath = os.path.join(path, file)
                 if args[0] != "-name":
+                    #outputs absolute path if directory is given at the start
                     output.append(newPath + "\n")
                 elif args[0] == "-name":
                     #replaces absolute path with relative path if no directory is given.
                     output.append("." + newPath[initPathLength:] + "\n")
+
                 if os.path.isdir(newPath):
                     recursive_find(newPath)
 
         path = args[0]
 
-        if args[0] == "-name" and len(args) > 1:
+        if args[0] == "-name":
             path = os.getcwd()
+        if "-name" not in args:
             recursive_find(path)
-
         if args[len(args) - 1] == "-name":
             raise ValueError("-name requires additional arguments.")
 
         #If globbing wildcard is given, this runs instead.
-        else:
+        elif len(args) > 1:
             s = (args[len(args) - 1])
             concPath = path + "/**/" + s
             files = glob.glob(concPath, recursive = True)
