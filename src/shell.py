@@ -120,6 +120,9 @@ def eval(cmdline, out) -> None:
                 output_redirect_file = args[args.index(">") + 1]
                 args = args[: args.index(">")]
 
+            # Does input direction, changing any input to STDIN convention
+            args = input_redirection(args)
+
             app_outputs = application.exec(args, cmdline)
             # print("outputs", app_outputs)
 
@@ -142,6 +145,9 @@ def eval(cmdline, out) -> None:
                 output_redirect_file = args[args.index(">") + 1]
                 args = args[: args.index(">")]
 
+            # Does input direction, changing any input to STDIN convention
+            args = input_redirection(args)
+
             app_outputs = application.exec(args, cmdline)
 
             if output_redirect_file:
@@ -153,6 +159,7 @@ def eval(cmdline, out) -> None:
                     out.append(output)
 
 
+# Takes current arguments and reformats to STDIN convention if there is input redirection required
 def input_redirection(args: List[str]) -> List[str]:
     reformated_args = []
     for arg in args:
@@ -167,12 +174,16 @@ def input_redirection(args: List[str]) -> List[str]:
             reformated_args.append(arg)
 
     if "<" in reformated_args:
-        reformated_args = (
-            reformated_args[: reformated_args.index("<")]
-            + reformated_args[reformated_args.index("<") + 1 :]
-        )
-        if "<" in reformated_args:
+        if reformated_args.count("<") != 1:
             raise ValueError("several files are specified for input redirection")
+        else:
+            filename = reformated_args[reformated_args.index("<") + 1]
+            if not os.path.exists(filename):
+                raise ValueError("File for input redirection does not exist")
+            with open(filename, "r") as file:
+                data = file.read()
+            reformated_args = reformated_args[: reformated_args.index("<")]
+            reformated_args.append(["#STDIN#", data])
 
     return reformated_args
 
