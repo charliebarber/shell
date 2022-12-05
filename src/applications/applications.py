@@ -208,14 +208,21 @@ class Grep(Application):
         pattern = args[0]
         files = args[1:]
         for file in files:
-            with open(file) as f:
-                lines = f.readlines()
-                for line in lines:
-                    if re.match(pattern, line):
-                        if len(files) > 1:
-                            output.append(f"{file}:{line}")
-                        else:
-                            output.append(line)
+            if "#STDIN#" in file:
+                file = file[1]
+                for line in file.split("\n"):
+                    if line != "":
+                        if re.match(pattern, line):
+                            output.append(line + '\n')
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if re.match(pattern, line):
+                            if len(files) > 1:
+                                output.append(f"{file}:{line}")
+                            else:
+                                output.append(line)
 
         return output
 
