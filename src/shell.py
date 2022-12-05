@@ -82,7 +82,11 @@ def eval(cmdline, out) -> None:
             if prev_out:
                 # for arg in prev_out:
                 #     evaluated[1].append(arg)
-                evaluated[1].append("#STDIN#"+prev_out)
+                # print("prev", prev_out)
+                prev_out.insert(0, "#STDIN#")
+                # print("newprev", prev_out) 
+                # print("eval before", evaluated)
+                evaluated[1].append(prev_out)
             print(evaluated)
 
             seq_queue.append(evaluated)
