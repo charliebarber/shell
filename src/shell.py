@@ -8,7 +8,7 @@ from applications.factory import get_application
 from os import listdir
 from collections import deque
 from glob import glob
-
+import readline
 
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
@@ -90,6 +90,7 @@ def eval(cmdline, out) -> None:
         app, args = seq_queue.popleft()
         application = get_application(app)
 
+        output_redirect_file = ""
         if ">" in args:
             output_redirect_file = args[args.index(">") + 1]
             args = args[: args.index(">")]
