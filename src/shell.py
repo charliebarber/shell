@@ -68,15 +68,22 @@ def eval(cmdline, out) -> None:
             for i in range(len(cmds) - 1):
                 app, args = eval_cmd(cmds[i])
                 application = get_application(app)
-                for arg in prev_out:
-                    args.append(arg)
+                # for arg in prev_out:
+                #     args.append(arg)
+                if prev_out:
+                    args.append(prev_out)
+
+                # print(args)
                 app_outputs = application.exec(args, cmdline)
                 prev_out = app_outputs
 
             # append the last command to seq queue
             evaluated = eval_cmd(cmds[len(cmds) - 1])
-            for arg in prev_out:
-                evaluated[1].append(arg)
+            if prev_out:
+                # for arg in prev_out:
+                #     evaluated[1].append(arg)
+                evaluated[1].append(prev_out)
+            # print(evaluated)
 
             seq_queue.append(evaluated)
                     
