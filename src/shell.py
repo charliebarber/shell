@@ -35,26 +35,6 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     return (app, args)
 
 
-# def run_cmd(app, args, out):
-#     application = get_application(app)
-#     output_redirect_file = ""
-#     if ">" in args:
-#         output_redirect_file = args[args.index(">") + 1]
-#         args = args[: args.index(">")]
-
-#     app_outputs = application.exec(args, cmdline)
-#     print("APP OUTPUTS", app_outputs)
-
-#     if output_redirect_file:
-#         f = open(output_redirect_file, "w")
-#         for output in app_outputs:
-#             f.write(output)
-#     else:
-#         for output in app_outputs:
-#             out.append(output)
-#             print("OUT", out)
-
-
 def eval(cmdline, out) -> None:
     """
     eval takes in cmdline input and parses it.
@@ -62,23 +42,20 @@ def eval(cmdline, out) -> None:
     Adds output to the output queue given as an arg.
     """
 
-    # raw_commands stores the parsed commands before interpretation
-    raw_commands = []
-
     # Commands in sequence are added to a queue and popped in order
     seq_queue = deque()
 
     # Finds all commands seperated by semicolons and appends each to raw_commands
     for m in re.finditer("([^;].?[^;]+)", cmdline):
-        # print(m)
         if m.group(0):
             seq_queue.append(m.group(0))
 
-    # print(raw_commands)
-
+    # Exec each command while sequence queue is not empty
     while seq_queue:
+        # Take command at head of queue
         command = seq_queue.popleft()
 
+        # If it a pipeline command, must eval each cmd individually to store output
         if "|" in command:
             cmds = []
             # Regex to seperate by | chars
@@ -86,43 +63,43 @@ def eval(cmdline, out) -> None:
                 if m.group(0):
                     cmds.append(m.group(0))
 
-            # run commands and store their output
+            # Run commands and store their output
             prev_out = []
             for i in range(len(cmds) - 1):
                 app, args = eval_cmd(cmds[i])
                 application = get_application(app)
-                # for arg in prev_out:
-                #     args.append(arg)
                 if prev_out:
+                    # STDIN flag added to allow the applications to process the stdin stream
                     prev_out.insert(0, "#STDIN#")
+                    # Append the previous output to the new commands args
                     args.append(prev_out)
 
-                # print("args", args)
                 app_outputs = application.exec(args, cmdline)
-                # print("outputs", app_outputs)
                 prev_out = ["".join(app_outputs)]
-                # print("prev out", prev_out)
 
-            # append the last command to seq queue
+            # Append the last command to seq queue
             app, args = eval_cmd(cmds[len(cmds) - 1])
-            # print("app args", app, args)
+
             if prev_out:
+                # STDIN flag added to allow the applications to process the stdin stream
                 prev_out.insert(0, "#STDIN#")
-                # print("newprev", prev_out)
+                # Append the previous output to the new commands args
                 args.append(prev_out)
 
-            # seq_queue.appendleft(evaluated)
-            # print(app, args)
+            # Fetch app from factory
             application = get_application(app)
 
+            # Seperate output redirection from rest of command 
             output_redirect_file = ""
             if ">" in args:
                 output_redirect_file = args[args.index(">") + 1]
                 args = args[: args.index(">")]
 
+            # Exec the app and store the output
             app_outputs = application.exec(args, cmdline)
-            # print("outputs", app_outputs)
 
+            # Write output to file if provided
+            # Else, append to stdout
             if output_redirect_file:
                 f = open(output_redirect_file, "w")
                 for output in app_outputs:
@@ -132,18 +109,22 @@ def eval(cmdline, out) -> None:
                     out.append(output)
 
         else:
+            # Parse command into an app and its args 
             app, args = eval_cmd(command)
-            # print(app, args)
-
+            # Fetch app from factory
             application = get_application(app)
 
+            # Seperate output redirection from rest of command 
             output_redirect_file = ""
             if ">" in args:
                 output_redirect_file = args[args.index(">") + 1]
                 args = args[: args.index(">")]
 
+            # Exec the app and store the output
             app_outputs = application.exec(args, cmdline)
-
+            
+            # Write output to file if provided
+            # Else, append to stdout
             if output_redirect_file:
                 f = open(output_redirect_file, "w")
                 for output in app_outputs:
