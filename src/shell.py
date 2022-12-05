@@ -7,7 +7,7 @@ from applications.factory import get_application
 
 from os import listdir
 from collections import deque
-from glob import glob
+import glob
 import readline
 
 
@@ -23,7 +23,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
         else:
-            globbing = glob(m.group(0))
+            globbing = glob.glob(m.group(0))
             if globbing:
                 tokens.extend(globbing)
             else:
@@ -116,8 +116,14 @@ def input_redirection(args: List[str]) -> List[str]:
 
     return reformated_args
 
+def complete(text, state):
+    return (glob.glob(text+'*')+[None])[state]
+
 
 if __name__ == "__main__":
+    readline.set_completer_delims(' \t\n;')
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(complete)
     args_num = len(sys.argv) - 1
     if args_num > 0:
         if args_num != 2:
