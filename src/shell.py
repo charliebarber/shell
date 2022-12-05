@@ -7,8 +7,9 @@ from applications.factory import get_application
 
 from os import listdir
 from collections import deque
-from glob import glob
+import glob
 import readline
+
 
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
@@ -22,11 +23,12 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
         else:
-            globbing = glob(m.group(0))
+            globbing = glob.glob(m.group(0))
             if globbing:
                 tokens.extend(globbing)
             else:
                 tokens.append(m.group(0))
+
     app = tokens[0]
     args = tokens[1:]
 
@@ -151,7 +153,37 @@ def eval(cmdline, out) -> None:
                     out.append(output)
             
 
+def input_redirection(args: List[str]) -> List[str]:
+    reformated_args = []
+    for arg in args:
+        if "<" in arg and arg != "<":
+            split = list(filter(None, arg.split("<")))
+            if len(split) > 1:
+                raise ValueError("several files are specified for input redirection")
+            for item in split:
+                reformated_args.append("<")
+                reformated_args.append(item)
+        else:
+            reformated_args.append(arg)
+
+    if "<" in reformated_args:
+        reformated_args = (
+            reformated_args[: reformated_args.index("<")]
+            + reformated_args[reformated_args.index("<") + 1 :]
+        )
+        if "<" in reformated_args:
+            raise ValueError("several files are specified for input redirection")
+
+    return reformated_args
+
+def complete(text, state):
+    return (glob.glob(text+'*')+[None])[state]
+
+
 if __name__ == "__main__":
+    readline.set_completer_delims(' \t\n;')
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(complete)
     args_num = len(sys.argv) - 1
     if args_num > 0:
         if args_num != 2:
