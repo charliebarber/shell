@@ -19,29 +19,23 @@ class Application(ABC):
         pass
 
 
-class UnsafeDecorator:
-    """
-    UnsafeDecorator ....
-    """
-
-    def __init__(self, app) -> None:
-        self.app = app
-
-    def exec(self, args, input) -> str:
-        pass
-
-
 class Pwd(Application):
     """
     Pwd implements the 'pwd' shell function
     It outputs the current working directory followed by a newline.
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
-        return os.getcwd() + '\n'
+        return os.getcwd() + "\n"
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 # TODO Fix error handling in Cd class - type hints
@@ -51,14 +45,21 @@ class Cd(Application):
     It changes the current working directory.
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
+        output = []
         if len(args) == 0 or len(args) > 1:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         os.chdir(args[0])
-        return ""
+        return output
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Ls(Application):
@@ -69,23 +70,30 @@ class Ls(Application):
     Ignores files and directories whose names start with '.' .
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
         output = []
         if len(args) == 0:
             ls_dir = os.getcwd()
         elif len(args) > 1:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
+            ls_dir = args[0]
         else:
             ls_dir = args[0]
         for f in listdir(ls_dir):
             # print(f)
             if not f.startswith("."):
-                output.append(f + '\n')
+                output.append(f + "\n")
 
         return output
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Cat(Application):
@@ -94,8 +102,8 @@ class Cat(Application):
     It concatenates the content of given files and prints to stdout
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
         output = []
@@ -105,6 +113,12 @@ class Cat(Application):
 
         return output
 
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
+
 
 class Echo(Application):
     """
@@ -112,11 +126,17 @@ class Echo(Application):
     It prints its args seperated by spaces and followed by newline to stdout
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
-        return " ".join(args) + '\n'
+        return " ".join(args) + "\n"
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Head(Application):
@@ -126,12 +146,13 @@ class Head(Application):
     If < N lines, it prints only existing lines without raising an exception
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
+        output = []
         if len(args) != 1 and len(args) != 3:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         if len(args) == 1:
             num_lines = 10
             file = args[0]
@@ -143,11 +164,16 @@ class Head(Application):
                 file = args[2]
         with open(file) as f:
             lines = f.readlines()
-            output = []
             for i in range(0, min(len(lines), num_lines)):
                 output.append(lines[i])
 
             return output
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Tail(Application):
@@ -157,14 +183,14 @@ class Tail(Application):
     If < N lines, it prints only existing lines without raising an exception
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
         output = []
-        
+
         if len(args) != 1 and len(args) != 3:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         if len(args) == 1:
             num_lines = 10
             file = args[0]
@@ -179,8 +205,14 @@ class Tail(Application):
             display_length = min(len(lines), num_lines)
             for i in range(0, display_length):
                 output.append(lines[len(lines) - display_length + i])
-        
+
         return output
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Grep(Application):
@@ -191,15 +223,15 @@ class Grep(Application):
     Each line is followed by a newline
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
+        output = []
         if len(args) < 2:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         pattern = args[0]
         files = args[1:]
-        output = []
         for file in files:
             with open(file) as f:
                 lines = f.readlines()
@@ -212,6 +244,12 @@ class Grep(Application):
 
         return output
 
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
+
 
 class Cut(Application):
     """
@@ -220,20 +258,19 @@ class Cut(Application):
     Outputs result to stdout
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
+        output = []
         if len(args) != 3:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         if args[0] != "-b":
-            raise ValueError("wrong flags")
+            self.raise_error("wrong flags", output)
 
         bytes = args[1].split(",")
         indexs = []
         file = args[2]
-
-        output = []
 
         with open(file) as f:
             lines = f.readlines()
@@ -268,6 +305,12 @@ class Cut(Application):
 
         return output
 
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
+
 
 # TODO Implement find from Robins branch
 class Find(Application):
@@ -276,9 +319,9 @@ class Find(Application):
     It recursively searches for files with matching names
     Outputs list of relative paths, each followed by newline
     """
-    
-    def __init__(self) -> None:
-        pass
+
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
         output = []
@@ -289,10 +332,10 @@ class Find(Application):
             for file in files:
                 newPath = os.path.join(path, file)
                 if args[0] != "-name":
-                    #outputs absolute path if directory is given at the start
+                    # outputs absolute path if directory is given at the start
                     output.append(newPath + "\n")
                 elif args[0] == "-name":
-                    #replaces absolute path with relative path if no directory is given.
+                    # replaces absolute path with relative path if no directory is given.
                     output.append("." + newPath[initPathLength:] + "\n")
 
                 if os.path.isdir(newPath):
@@ -307,20 +350,25 @@ class Find(Application):
         if args[len(args) - 1] == "-name":
             raise ValueError("-name requires additional arguments.")
 
-        #If globbing wildcard is given, this runs instead.
+        # If globbing wildcard is given, this runs instead.
         elif len(args) > 1:
-            s = (args[len(args) - 1])
+            s = args[len(args) - 1]
             concPath = path + "/**/" + s
-            files = glob.glob(concPath, recursive = True)
+            files = glob.glob(concPath, recursive=True)
             if args[0] != "-name":
                 for file in files:
                     output.append(file + "\n")
             elif args[0] == "-name":
                 for file in files:
                     output.append("." + file[initPathLength:] + "\n")
-            
 
         return output
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
 
 
 class Uniq(Application):
@@ -330,20 +378,20 @@ class Uniq(Application):
     Outputs result to stdout
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
         output = []
 
         if len(args) > 2:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         if len(args) == 1:
             file = args[0]
             case = 0
         if len(args) == 2:
             if args[0] != "-i":
-                raise ValueError("wrong flags")
+                self.raise_error("wrong flags", output)
             else:
                 case = 1
                 file = args[1]
@@ -378,6 +426,12 @@ class Uniq(Application):
 
         return output
 
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
+
 
 # TODO Implement sort from Robins branch
 class Sort(Application):
@@ -387,19 +441,19 @@ class Sort(Application):
     Outputs results to stdout
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, unsafe) -> None:
+        self.unsafe = unsafe
 
     def exec(self, args, input) -> str:
         output = []
         rev = 0  # reverse order true/false
         if len(args) > 2:
-            raise ValueError("wrong number of command line arguments")
+            self.raise_error("wrong number of command line arguments", output)
         if len(args) == 1:
             file = args[0]
         if len(args) == 2:
             if args[0] != "-r":
-                raise ValueError("wrong flags")
+                self.raise_error("wrong flags", output)
             else:
                 rev = 1
                 file = args[1]
@@ -415,3 +469,9 @@ class Sort(Application):
             output.append(line + "\n")
 
         return output
+
+    def raise_error(self, message, output) -> None:
+        if self.unsafe:
+            output.append(message)
+        else:
+            raise ValueError(message)
