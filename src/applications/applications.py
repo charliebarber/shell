@@ -356,8 +356,15 @@ class Uniq(Application):
                 case = 1
                 file = args[1]
 
-        with open(file, "r") as f:
-            contents = f.read().splitlines()
+        if "#STDIN#" in file:
+            contents = []
+            for lines in file[1:]:
+                for line in lines.split('\n'):
+                    if line != '':
+                        contents.append(line)
+        else:
+            with open(file, "r") as f:
+                contents = f.read().splitlines()
 
         indexToRemove = []
 
@@ -405,6 +412,8 @@ class Sort(Application):
 
     def exec(self, args, input) -> str:
         output = []
+        stdin = False
+
         rev = 0  # reverse order true/false
         if len(args) > 2:
             self.raise_error("wrong number of command line arguments", output)
@@ -417,8 +426,15 @@ class Sort(Application):
                 rev = 1
                 file = args[1]
 
-        with open(file, "r") as f:
-            contents = f.read().splitlines()
+        if "#STDIN#" in file:
+            contents = []
+            for lines in file[1:]:
+                for line in lines.split('\n'):
+                    if line != '':
+                        contents.append(line)
+        else:
+            with open(file, "r") as f:
+                contents = f.read().splitlines()
 
         contents.sort()
         if rev == 1:

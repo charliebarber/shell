@@ -35,6 +35,26 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     return (app, args)
 
 
+# def run_cmd(app, args, out):
+#     application = get_application(app)
+#     output_redirect_file = ""
+#     if ">" in args:
+#         output_redirect_file = args[args.index(">") + 1]
+#         args = args[: args.index(">")]
+
+#     app_outputs = application.exec(args, cmdline)
+#     print("APP OUTPUTS", app_outputs)
+
+#     if output_redirect_file:
+#         f = open(output_redirect_file, "w")
+#         for output in app_outputs:
+#             f.write(output)
+#     else:
+#         for output in app_outputs:
+#             out.append(output)
+#             print("OUT", out)
+
+
 def eval(cmdline, out) -> None:
     """
     eval takes in cmdline input and parses it.
@@ -45,52 +65,92 @@ def eval(cmdline, out) -> None:
     # raw_commands stores the parsed commands before interpretation
     raw_commands = []
 
+    # Commands in sequence are added to a queue and popped in order
+    seq_queue = deque()
+
     # Finds all commands seperated by semicolons and appends each to raw_commands
     for m in re.finditer("([^;].?[^;]+)", cmdline):
         # print(m)
         if m.group(0):
-            raw_commands.append(m.group(0))
+            seq_queue.append(m.group(0))
 
     # print(raw_commands)
 
-    # Commands in sequence are added to a queue and popped in order
-    seq_queue = deque()
-
-    for command in raw_commands:
-
-        # Handle pipeline commands
-        # prev_output = ""
-        # Regex to seperate by | chars
-        # for m in re.finditer("([^\|].?[^\|]+)", command):
-
-        evaluated = eval_cmd(command)
-
-        # Append pair of app and its args to the sequence queue
-        seq_queue.append(evaluated)
-
     while seq_queue:
-        app, args = seq_queue.popleft()
-        application = get_application(app)
+        command = seq_queue.popleft()
 
-        args = input_redirection(args)
+        if "|" in command:
+            cmds = []
+            # Regex to seperate by | chars
+            for m in re.finditer("([^\|].?[^\|]+)", command):
+                if m.group(0):
+                    cmds.append(m.group(0))
 
-        output_redirect_file = ""
-        if ">" in args:
-            output_redirect_file = args[args.index(">") + 1]
+            # run commands and store their output
+            prev_out = []
+            for i in range(len(cmds) - 1):
+                app, args = eval_cmd(cmds[i])
+                application = get_application(app)
+                # for arg in prev_out:
+                #     args.append(arg)
+                if prev_out:
+                    prev_out.insert(0, "#STDIN#")
+                    args.append(prev_out)
 
-            args = args[: args.index(">")] + args[(args.index(">") + 2) :]
+                # print("args", args)
+                app_outputs = application.exec(args, cmdline)
+                # print("outputs", app_outputs)
+                prev_out = ["".join(app_outputs)]
+                # print("prev out", prev_out)
+
+            # append the last command to seq queue
+            app, args = eval_cmd(cmds[len(cmds) - 1])
+            # print("app args", app, args)
+            if prev_out:
+                prev_out.insert(0, "#STDIN#")
+                # print("newprev", prev_out)
+                args.append(prev_out)
+
+            # seq_queue.appendleft(evaluated)
+            # print(app, args)
+            application = get_application(app)
+
+            output_redirect_file = ""
             if ">" in args:
-                raise ValueError("several files are specified for output redirection")
+                output_redirect_file = args[args.index(">") + 1]
+                args = args[: args.index(">")]
 
-        app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args, cmdline)
+            # print("outputs", app_outputs)
 
-        if output_redirect_file:
-            f = open(output_redirect_file, "w")
-            for output in app_outputs:
-                f.write(output)
+            if output_redirect_file:
+                f = open(output_redirect_file, "w")
+                for output in app_outputs:
+                    f.write(output)
+            else:
+                for output in app_outputs:
+                    out.append(output)
+
         else:
-            for output in app_outputs:
-                out.append(output)
+            app, args = eval_cmd(command)
+            # print(app, args)
+
+            application = get_application(app)
+
+            output_redirect_file = ""
+            if ">" in args:
+                output_redirect_file = args[args.index(">") + 1]
+                args = args[: args.index(">")]
+
+            app_outputs = application.exec(args, cmdline)
+
+            if output_redirect_file:
+                f = open(output_redirect_file, "w")
+                for output in app_outputs:
+                    f.write(output)
+            else:
+                for output in app_outputs:
+                    out.append(output)
 
 
 def input_redirection(args: List[str]) -> List[str]:
@@ -116,12 +176,13 @@ def input_redirection(args: List[str]) -> List[str]:
 
     return reformated_args
 
+
 def complete(text, state):
-    return (glob.glob(text+'*')+[None])[state]
+    return (glob.glob(text + "*") + [None])[state]
 
 
 if __name__ == "__main__":
-    readline.set_completer_delims(' \t\n;')
+    readline.set_completer_delims(" \t\n;")
     readline.parse_and_bind("tab: complete")
     readline.set_completer(complete)
     args_num = len(sys.argv) - 1
