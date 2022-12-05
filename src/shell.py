@@ -71,7 +71,7 @@ def eval(cmdline, out) -> None:
                 # for arg in prev_out:
                 #     args.append(arg)
                 if prev_out:
-                    args.append(prev_out)
+                    args.append("#STDIN#"+prev_out)
 
                 # print(args)
                 app_outputs = application.exec(args, cmdline)
@@ -82,8 +82,8 @@ def eval(cmdline, out) -> None:
             if prev_out:
                 # for arg in prev_out:
                 #     evaluated[1].append(arg)
-                evaluated[1].append(prev_out)
-            # print(evaluated)
+                evaluated[1].append("#STDIN#"+prev_out)
+            print(evaluated)
 
             seq_queue.append(evaluated)
                     

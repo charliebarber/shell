@@ -346,8 +346,11 @@ class Uniq(Application):
                 case = 1
                 file = args[1]
 
-        with open(file, "r") as f:
-            contents = f.read().splitlines()
+        if "#STDIN#" in file:
+            contents = file[7:]
+        else:
+            with open(file, "r") as f:
+                contents = f.read().splitlines()
 
         indexToRemove = []
 
