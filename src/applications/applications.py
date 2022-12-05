@@ -8,7 +8,7 @@ import glob
 from abc import ABC, abstractmethod
 
 
-class ApplicationInterface(ABC):
+class Application(ABC):
     """
     Application is an abstract base class for all applications to inherit from
     It takes in arguments and returns the output ready for the output stream
@@ -25,7 +25,7 @@ class ApplicationInterface(ABC):
             raise ValueError(message)
 
 
-class Pwd(ApplicationInterface):
+class Pwd(Application):
     """
     Pwd implements the 'pwd' shell function
     It outputs the current working directory followed by a newline.
@@ -39,7 +39,7 @@ class Pwd(ApplicationInterface):
 
 
 # TODO Fix error handling in Cd class - type hints
-class Cd(ApplicationInterface):
+class Cd(Application):
     """
     Cd implements the 'cd' shell function
     It changes the current working directory.
@@ -56,7 +56,7 @@ class Cd(ApplicationInterface):
         return output
 
 
-class Ls(ApplicationInterface):
+class Ls(Application):
     """
     Ls implements the 'ls' shell function
     Lists the content of a directory.
@@ -84,7 +84,7 @@ class Ls(ApplicationInterface):
         return output
 
 
-class Cat(ApplicationInterface):
+class Cat(Application):
     """
     Cat implements the 'cat' shell function
     It concatenates the content of given files and prints to stdout
@@ -102,7 +102,7 @@ class Cat(ApplicationInterface):
         return output
 
 
-class Echo(ApplicationInterface):
+class Echo(Application):
     """
     Echo implements the 'echo' shell function
     It prints its args seperated by spaces and followed by newline to stdout
@@ -121,7 +121,7 @@ class Echo(ApplicationInterface):
             raise ValueError(message)
 
 
-class Head(ApplicationInterface):
+class Head(Application):
     """
     Head implements the 'head' shell function
     Prints the first N lines of a given file or stdin
@@ -152,7 +152,7 @@ class Head(ApplicationInterface):
             return output
 
 
-class Tail(ApplicationInterface):
+class Tail(Application):
     """
     Tail implements the 'tail' shell function
     Prints the last N lines of a given file or stdin
@@ -185,7 +185,7 @@ class Tail(ApplicationInterface):
         return output
 
 
-class Grep(ApplicationInterface):
+class Grep(Application):
     """
     Grep implements the 'grep' shell function
     It searches for lines containing a match to specified pattern
@@ -215,7 +215,7 @@ class Grep(ApplicationInterface):
         return output
 
 
-class Cut(ApplicationInterface):
+class Cut(Application):
     """
     Cut implements the 'cut' shell function
     It cuts out sections from each line of a given file or stdin
@@ -271,7 +271,7 @@ class Cut(ApplicationInterface):
 
 
 # TODO Implement find from Robins branch
-class Find(ApplicationInterface):
+class Find(Application):
     """
     Find implements the 'find' shell function
     It recursively searches for files with matching names
@@ -328,7 +328,7 @@ class Find(ApplicationInterface):
             raise ValueError(message)
 
 
-class Uniq(ApplicationInterface):
+class Uniq(Application):
     """
     Uniq implements the 'uniq' shell function
     It detects and deletes adjacent duplicate lines from an input file/stdin
@@ -397,7 +397,7 @@ class Uniq(ApplicationInterface):
 
 
 # TODO Implement sort from Robins branch
-class Sort(ApplicationInterface):
+class Sort(Application):
     """
     Sort implements the 'sort' shell function
     It sorts the contents of a file/stdin line by line
