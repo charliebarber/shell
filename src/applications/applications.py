@@ -25,7 +25,7 @@ class ApplicationInterface(ABC):
             raise ValueError(message)
 
 
-class Pwd(Application):
+class Pwd(ApplicationInterface):
     """
     Pwd implements the 'pwd' shell function
     It outputs the current working directory followed by a newline.
@@ -39,7 +39,7 @@ class Pwd(Application):
 
 
 # TODO Fix error handling in Cd class - type hints
-class Cd(Application):
+class Cd(ApplicationInterface):
     """
     Cd implements the 'cd' shell function
     It changes the current working directory.
@@ -56,8 +56,7 @@ class Cd(Application):
         return output
 
 
-
-class Ls(Application):
+class Ls(ApplicationInterface):
     """
     Ls implements the 'ls' shell function
     Lists the content of a directory.
@@ -85,7 +84,7 @@ class Ls(Application):
         return output
 
 
-class Cat(Application):
+class Cat(ApplicationInterface):
     """
     Cat implements the 'cat' shell function
     It concatenates the content of given files and prints to stdout
@@ -103,7 +102,7 @@ class Cat(Application):
         return output
 
 
-class Echo(Application):
+class Echo(ApplicationInterface):
     """
     Echo implements the 'echo' shell function
     It prints its args seperated by spaces and followed by newline to stdout
@@ -122,7 +121,7 @@ class Echo(Application):
             raise ValueError(message)
 
 
-class Head(Application):
+class Head(ApplicationInterface):
     """
     Head implements the 'head' shell function
     Prints the first N lines of a given file or stdin
@@ -153,7 +152,7 @@ class Head(Application):
             return output
 
 
-class Tail(Application):
+class Tail(ApplicationInterface):
     """
     Tail implements the 'tail' shell function
     Prints the last N lines of a given file or stdin
@@ -186,8 +185,7 @@ class Tail(Application):
         return output
 
 
-
-class Grep(Application):
+class Grep(ApplicationInterface):
     """
     Grep implements the 'grep' shell function
     It searches for lines containing a match to specified pattern
@@ -217,8 +215,7 @@ class Grep(Application):
         return output
 
 
-
-class Cut(Application):
+class Cut(ApplicationInterface):
     """
     Cut implements the 'cut' shell function
     It cuts out sections from each line of a given file or stdin
@@ -274,7 +271,7 @@ class Cut(Application):
 
 
 # TODO Implement find from Robins branch
-class Find(Application):
+class Find(ApplicationInterface):
     """
     Find implements the 'find' shell function
     It recursively searches for files with matching names
@@ -331,7 +328,7 @@ class Find(Application):
             raise ValueError(message)
 
 
-class Uniq(Application):
+class Uniq(ApplicationInterface):
     """
     Uniq implements the 'uniq' shell function
     It detects and deletes adjacent duplicate lines from an input file/stdin
@@ -359,8 +356,8 @@ class Uniq(Application):
         if "#STDIN#" in file:
             contents = []
             for lines in file[1:]:
-                for line in lines.split('\n'):
-                    if line != '':
+                for line in lines.split("\n"):
+                    if line != "":
                         contents.append(line)
         else:
             with open(file, "r") as f:
@@ -400,7 +397,7 @@ class Uniq(Application):
 
 
 # TODO Implement sort from Robins branch
-class Sort(Application):
+class Sort(ApplicationInterface):
     """
     Sort implements the 'sort' shell function
     It sorts the contents of a file/stdin line by line
@@ -429,8 +426,8 @@ class Sort(Application):
         if "#STDIN#" in file:
             contents = []
             for lines in file[1:]:
-                for line in lines.split('\n'):
-                    if line != '':
+                for line in lines.split("\n"):
+                    if line != "":
                         contents.append(line)
         else:
             with open(file, "r") as f:
