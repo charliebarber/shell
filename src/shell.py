@@ -175,11 +175,11 @@ def input_redirection(args: List[str]) -> List[str]:
 
     if "<" in reformated_args:
         if reformated_args.count("<") != 1:
-            raise ValueError("several files are specified for input redirection")
+            raise ValueError("Several files are specified for input redirection")
         else:
             filename = reformated_args[reformated_args.index("<") + 1]
             if not os.path.exists(filename):
-                raise ValueError("File for input redirection does not exist")
+                raise FileNotFoundError("File for input redirection does not exist")
             with open(filename, "r") as file:
                 data = file.read()
             reformated_args = reformated_args[: reformated_args.index("<")]
