@@ -18,11 +18,16 @@ class Application(ABC):
     def exec(self, args, input) -> str:
         pass
 
-    def raise_error(self, message, output) -> None:
+    def raise_error(self, message, type, output) -> None:
         if self.unsafe:
-            output.append(message)
+            output.append(message + "\n")
         else:
-            raise ValueError(message)
+            if type == "file_not_found":
+                raise FileNotFoundError(message)
+            elif type == "not_directory":
+                raise NotADirectoryError(message)
+            else:
+                raise ValueError(message)
 
 
 class Pwd(Application):
@@ -38,7 +43,6 @@ class Pwd(Application):
         return os.getcwd() + "\n"
 
 
-# TODO Fix error handling in Cd class - type hints
 class Cd(Application):
     """
     Cd implements the 'cd' shell function
@@ -51,8 +55,12 @@ class Cd(Application):
     def exec(self, args, input) -> str:
         output = []
         if len(args) == 0 or len(args) > 1:
-            self.raise_error("wrong number of command line arguments", output)
-        os.chdir(args[0])
+            self.raise_error("Wrong number of command line arguments", "value", output)
+        if not os.path.exists(args[0]):
+            self.raise_error(f"No such directory: {args[0]}", "not_directory", output)
+        else:
+            os.chdir(args[0])
+
         return output
 
 
@@ -72,14 +80,16 @@ class Ls(Application):
         if len(args) == 0:
             ls_dir = os.getcwd()
         elif len(args) > 1:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
             ls_dir = args[0]
         else:
             ls_dir = args[0]
-        for f in listdir(ls_dir):
-            # print(f)
-            if not f.startswith("."):
-                output.append(f + "\n")
+        if not os.path.exists(ls_dir):
+            self.raise_error(f"No such directory: {ls_dir}", "not_directory", output)
+        else:
+            for f in listdir(ls_dir):
+                if not f.startswith("."):
+                    output.append(f + "\n")
 
         return output
 
@@ -96,8 +106,13 @@ class Cat(Application):
     def exec(self, args, input) -> str:
         output = []
         for a in args:
-            with open(a) as f:
-                output.append(f.read())
+            if not os.path.exists(a):
+                self.raise_error(
+                    f"No such file or directory: {a}", "file_not_found", output
+                )
+            else:
+                with open(a) as f:
+                    output.append(f.read())
 
         return output
 
@@ -114,12 +129,6 @@ class Echo(Application):
     def exec(self, args, input) -> str:
         return " ".join(args) + "\n"
 
-    def raise_error(self, message, output) -> None:
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
-
 
 class Head(Application):
     """
@@ -133,23 +142,33 @@ class Head(Application):
 
     def exec(self, args, input) -> str:
         output = []
+        file = ""
+
         if len(args) != 1 and len(args) != 3:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
+            return output
         if len(args) == 1:
             num_lines = 10
             file = args[0]
         if len(args) == 3:
             if args[0] != "-n":
-                raise ValueError("wrong flags")
+                self.raise_error("Wrong flags", "value", output)
+                return output
             else:
                 num_lines = int(args[1])
                 file = args[2]
-        with open(file) as f:
-            lines = f.readlines()
-            for i in range(0, min(len(lines), num_lines)):
-                output.append(lines[i])
 
-            return output
+        if not os.path.exists(file):
+            self.raise_error(
+                f"No such file or directory: {file}", "file_not_found", output
+            )
+        else:
+            with open(file) as f:
+                lines = f.readlines()
+                for i in range(0, min(len(lines), num_lines)):
+                    output.append(lines[i])
+
+        return output
 
 
 class Tail(Application):
@@ -164,23 +183,32 @@ class Tail(Application):
 
     def exec(self, args, input) -> str:
         output = []
+        file = ""
 
         if len(args) != 1 and len(args) != 3:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
+            return output
         if len(args) == 1:
             num_lines = 10
             file = args[0]
         if len(args) == 3:
             if args[0] != "-n":
-                raise ValueError("wrong flags")
+                self.raise_error("Wrong flags", "value", output)
+                return output
             else:
                 num_lines = int(args[1])
                 file = args[2]
-        with open(file) as f:
-            lines = f.readlines()
-            display_length = min(len(lines), num_lines)
-            for i in range(0, display_length):
-                output.append(lines[len(lines) - display_length + i])
+
+        if not os.path.exists(file):
+            self.raise_error(
+                f"No such file or directory: {file}", "file_not_found", output
+            )
+        else:
+            with open(file) as f:
+                lines = f.readlines()
+                display_length = min(len(lines), num_lines)
+                for i in range(0, display_length):
+                    output.append(lines[len(lines) - display_length + i])
 
         return output
 
@@ -199,18 +227,25 @@ class Grep(Application):
     def exec(self, args, input) -> str:
         output = []
         if len(args) < 2:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
+            return output
+
         pattern = args[0]
         files = args[1:]
         for file in files:
-            with open(file) as f:
-                lines = f.readlines()
-                for line in lines:
-                    if re.match(pattern, line):
-                        if len(files) > 1:
-                            output.append(f"{file}:{line}")
-                        else:
-                            output.append(line)
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if re.match(pattern, line):
+                            if len(files) > 1:
+                                output.append(f"{file}:{line}")
+                            else:
+                                output.append(line)
 
         return output
 
@@ -228,49 +263,55 @@ class Cut(Application):
     def exec(self, args, input) -> str:
         output = []
         if len(args) != 3:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
+            return output
         if args[0] != "-b":
-            self.raise_error("wrong flags", output)
+            self.raise_error("Wrong flags", "value", output)
+            return output
 
         bytes = args[1].split(",")
         indexs = []
         file = args[2]
 
-        with open(file) as f:
-            lines = f.readlines()
+        if not os.path.exists(file):
+            self.raise_error(
+                f"No such file or directory: {file}", "file_not_found", output
+            )
+        else:
+            with open(file) as f:
+                lines = f.readlines()
 
-            for byte in bytes:
-                if "-" not in byte:
-                    if (int(byte) - 1) not in indexs:
-                        indexs.append(int(byte) - 1)
-                elif byte[0] == "-":
-                    for i in range(0, int(byte[1:])):
-                        if i not in indexs:
-                            indexs.append(i)
-                elif byte[-1] == "-":
-                    for i in range(int(byte[:-1]) - 1, len(max(lines, key=len))):
-                        if i not in indexs:
-                            indexs.append(i)
-                else:
-                    indexRange = byte.split("-")
-                    for i in range(int(indexRange[0]) - 1, int(indexRange[1])):
-                        if i not in indexs:
-                            indexs.append(i)
+                for byte in bytes:
+                    if "-" not in byte:
+                        if (int(byte) - 1) not in indexs:
+                            indexs.append(int(byte) - 1)
+                    elif byte[0] == "-":
+                        for i in range(0, int(byte[1:])):
+                            if i not in indexs:
+                                indexs.append(i)
+                    elif byte[-1] == "-":
+                        for i in range(int(byte[:-1]) - 1, len(max(lines, key=len))):
+                            if i not in indexs:
+                                indexs.append(i)
+                    else:
+                        indexRange = byte.split("-")
+                        for i in range(int(indexRange[0]) - 1, int(indexRange[1])):
+                            if i not in indexs:
+                                indexs.append(i)
 
-            indexs.sort()
+                indexs.sort()
 
-            for line in lines:
-                line = line.strip("\n")
-                newLine = ""
-                for i in indexs:
-                    if i < len(line):
-                        newLine = newLine + line[i]
-                output.append(newLine + "\n")
+                for line in lines:
+                    line = line.strip("\n")
+                    newLine = ""
+                    for i in indexs:
+                        if i < len(line):
+                            newLine = newLine + line[i]
+                    output.append(newLine + "\n")
 
         return output
 
 
-# TODO Implement find from Robins branch
 class Find(Application):
     """
     Find implements the 'find' shell function
@@ -306,7 +347,8 @@ class Find(Application):
         if "-name" not in args:
             recursive_find(path)
         if args[len(args) - 1] == "-name":
-            raise ValueError("-name requires additional arguments.")
+            self.raise_error("-name requires additional arguments", "value", output)
+            return output
 
         # If globbing wildcard is given, this runs instead.
         elif len(args) > 1:
@@ -321,11 +363,6 @@ class Find(Application):
                     output.append("." + file[initPathLength:] + "\n")
 
         return output
-
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
 
 
 class Uniq(Application):
@@ -342,13 +379,15 @@ class Uniq(Application):
         output = []
 
         if len(args) > 2:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
+            return output
         if len(args) == 1:
             file = args[0]
             case = 0
         if len(args) == 2:
             if args[0] != "-i":
-                self.raise_error("wrong flags", output)
+                self.raise_error("Wrong flags", "value", output)
+                return output
             else:
                 case = 1
                 file = args[1]
@@ -360,8 +399,14 @@ class Uniq(Application):
                     if line != "":
                         contents.append(line)
         else:
-            with open(file, "r") as f:
-                contents = f.read().splitlines()
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+                return output
+            else:
+                with open(file, "r") as f:
+                    contents = f.read().splitlines()
 
         indexToRemove = []
 
@@ -390,11 +435,6 @@ class Uniq(Application):
 
         return output
 
-        if self.unsafe:
-            output.append(message)
-        else:
-            raise ValueError(message)
-
 
 # TODO Implement sort from Robins branch
 class Sort(Application):
@@ -409,16 +449,17 @@ class Sort(Application):
 
     def exec(self, args, input) -> str:
         output = []
-        stdin = False
 
         rev = 0  # reverse order true/false
         if len(args) > 2:
-            self.raise_error("wrong number of command line arguments", output)
+            self.raise_error("Wrong number of command line arguments", "value", output)
+            return output
         if len(args) == 1:
             file = args[0]
         if len(args) == 2:
             if args[0] != "-r":
-                self.raise_error("wrong flags", output)
+                self.raise_error("Wrong flags", "value", output)
+                return output
             else:
                 rev = 1
                 file = args[1]
@@ -430,8 +471,14 @@ class Sort(Application):
                     if line != "":
                         contents.append(line)
         else:
-            with open(file, "r") as f:
-                contents = f.read().splitlines()
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+                return output
+            else:
+                with open(file, "r") as f:
+                    contents = f.read().splitlines()
 
         contents.sort()
         if rev == 1:
