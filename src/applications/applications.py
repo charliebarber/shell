@@ -106,13 +106,18 @@ class Cat(Application):
     def exec(self, args, input) -> str:
         output = []
         for a in args:
-            if not os.path.exists(a):
-                self.raise_error(
-                    f"No such file or directory: {a}", "file_not_found", output
-                )
+            if "#STDIN#" in a:
+                f = a[1:]
+                for x in f:
+                    output.append(x)
             else:
-                with open(a) as f:
-                    output.append(f.read())
+                if not os.path.exists(a):
+                    self.raise_error(
+                        f"No such file or directory: {a}", "file_not_found", output
+                    )
+                else:
+                    with open(a) as f:
+                        output.append(f.read())
 
         return output
 
@@ -158,15 +163,24 @@ class Head(Application):
                 num_lines = int(args[1])
                 file = args[2]
 
-        if not os.path.exists(file):
-            self.raise_error(
-                f"No such file or directory: {file}", "file_not_found", output
-            )
+        if "#STDIN#" in file:
+            file = file[1]
+            lines = file.split("\n")
+            for i in range(0, min(len(lines), num_lines)):
+                output.append(lines[i] + "\n")
         else:
-            with open(file) as f:
-                lines = f.readlines()
-                for i in range(0, min(len(lines), num_lines)):
-                    output.append(lines[i])
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
+                    for i in range(0, min(len(lines), num_lines)):
+                        if i == len(lines) - 1:
+                            output.append(lines[i] + "\n")
+                        else:
+                            output.append(lines[i])
 
         return output
 
@@ -199,16 +213,26 @@ class Tail(Application):
                 num_lines = int(args[1])
                 file = args[2]
 
-        if not os.path.exists(file):
-            self.raise_error(
-                f"No such file or directory: {file}", "file_not_found", output
-            )
+        if "#STDIN#" in file:
+            file = file[1]
+            lines = file.split("\n")
+            display_length = min(len(lines), num_lines) + 1
+            for i in range(0, display_length):
+                output.append(lines[len(lines) - display_length + i] + "\n")
         else:
-            with open(file) as f:
-                lines = f.readlines()
-                display_length = min(len(lines), num_lines)
-                for i in range(0, display_length):
-                    output.append(lines[len(lines) - display_length + i])
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
+                    display_length = min(len(lines), num_lines)
+                    for i in range(0, display_length):
+                        if i == display_length - 1:
+                            output.append(lines[len(lines) - display_length + i] + "\n")
+                        else:
+                            output.append(lines[len(lines) - display_length + i])
 
         return output
 
@@ -233,19 +257,26 @@ class Grep(Application):
         pattern = args[0]
         files = args[1:]
         for file in files:
-            if not os.path.exists(file):
-                self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
-                )
-            else:
-                with open(file) as f:
-                    lines = f.readlines()
-                    for line in lines:
+            if "#STDIN#" in file:
+                file = file[1]
+                for line in file.split("\n"):
+                    if line != "":
                         if re.match(pattern, line):
-                            if len(files) > 1:
-                                output.append(f"{file}:{line}")
-                            else:
-                                output.append(line)
+                            output.append(line + "\n")
+            else:
+                if not os.path.exists(file):
+                    self.raise_error(
+                        f"No such file or directory: {file}", "file_not_found", output
+                    )
+                else:
+                    with open(file) as f:
+                        lines = f.readlines()
+                        for line in lines:
+                            if re.match(pattern, line):
+                                if len(files) > 1:
+                                    output.append(f"{file}:{line}")
+                                else:
+                                    output.append(line)
 
         return output
 
@@ -273,41 +304,45 @@ class Cut(Application):
         indexs = []
         file = args[2]
 
-        if not os.path.exists(file):
-            self.raise_error(
-                f"No such file or directory: {file}", "file_not_found", output
-            )
+        if "#STDIN#" in file:
+            file = file[1]
+            lines = file.split("\n")
         else:
-            with open(file) as f:
-                lines = f.readlines()
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
 
-                for byte in bytes:
-                    if "-" not in byte:
-                        if (int(byte) - 1) not in indexs:
-                            indexs.append(int(byte) - 1)
-                    elif byte[0] == "-":
-                        for i in range(0, int(byte[1:])):
-                            if i not in indexs:
-                                indexs.append(i)
-                    elif byte[-1] == "-":
-                        for i in range(int(byte[:-1]) - 1, len(max(lines, key=len))):
-                            if i not in indexs:
-                                indexs.append(i)
-                    else:
-                        indexRange = byte.split("-")
-                        for i in range(int(indexRange[0]) - 1, int(indexRange[1])):
-                            if i not in indexs:
-                                indexs.append(i)
+        for byte in bytes:
+            if "-" not in byte:
+                if (int(byte) - 1) not in indexs:
+                    indexs.append(int(byte) - 1)
+            elif byte[0] == "-":
+                for i in range(0, int(byte[1:])):
+                    if i not in indexs:
+                        indexs.append(i)
+            elif byte[-1] == "-":
+                for i in range(int(byte[:-1]) - 1, len(max(lines, key=len))):
+                    if i not in indexs:
+                        indexs.append(i)
+            else:
+                indexRange = byte.split("-")
+                for i in range(int(indexRange[0]) - 1, int(indexRange[1])):
+                    if i not in indexs:
+                        indexs.append(i)
 
-                indexs.sort()
+        indexs.sort()
 
-                for line in lines:
-                    line = line.strip("\n")
-                    newLine = ""
-                    for i in indexs:
-                        if i < len(line):
-                            newLine = newLine + line[i]
-                    output.append(newLine + "\n")
+        for line in lines:
+            line = line.strip("\n")
+            newLine = ""
+            for i in indexs:
+                if i < len(line):
+                    newLine = newLine + line[i]
+            output.append(newLine + "\n")
 
         return output
 
@@ -325,6 +360,7 @@ class Find(Application):
     def exec(self, args, input) -> str:
         output = []
         initPathLength = len(os.getcwd())
+        path = args[0]
 
         def recursive_find(path):
             files = os.listdir(path)
@@ -340,10 +376,12 @@ class Find(Application):
                 if os.path.isdir(newPath):
                     recursive_find(newPath)
 
-        path = args[0]
-
+        # If no directory is given, use current working directory
         if args[0] == "-name":
             path = os.getcwd()
+        if args[0] != "-name" and not os.path.exists(args[0]):
+            self.raise_error("directory given does not exist", "not_directory", output)
+            return output
         if "-name" not in args:
             recursive_find(path)
         if args[len(args) - 1] == "-name":
