@@ -118,8 +118,6 @@ class Cat(Application):
                 else:
                     with open(a) as f:
                         output.append(f.read())
-                    with open(a) as f:
-                        output.append(f.read())
 
         return output
 
