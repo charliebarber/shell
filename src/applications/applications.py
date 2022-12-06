@@ -26,8 +26,12 @@ class Application(ABC):
                 raise FileNotFoundError(message)
             elif type == "not_directory":
                 raise NotADirectoryError(message)
-            else:
+            elif type == "value":
                 raise ValueError(message)
+            elif type == "type":
+                raise TypeError(message)
+            else:
+                raise RuntimeError(message)
 
 
 class Pwd(Application):
@@ -55,7 +59,7 @@ class Cd(Application):
     def exec(self, args, input) -> str:
         output = []
         if len(args) == 0 or len(args) > 1:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
         if not os.path.exists(args[0]):
             self.raise_error(f"No such directory: {args[0]}", "not_directory", output)
         else:
@@ -80,7 +84,7 @@ class Ls(Application):
         if len(args) == 0:
             ls_dir = os.getcwd()
         elif len(args) > 1:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             ls_dir = args[0]
         else:
             ls_dir = args[0]
@@ -150,7 +154,7 @@ class Head(Application):
         file = ""
 
         if len(args) != 1 and len(args) != 3:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             return output
         if len(args) == 1:
             num_lines = 10
@@ -200,7 +204,7 @@ class Tail(Application):
         file = ""
 
         if len(args) != 1 and len(args) != 3:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             return output
         if len(args) == 1:
             num_lines = 10
@@ -251,7 +255,7 @@ class Grep(Application):
     def exec(self, args, input) -> str:
         output = []
         if len(args) < 2:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             return output
 
         pattern = args[0]
@@ -294,7 +298,7 @@ class Cut(Application):
     def exec(self, args, input) -> str:
         output = []
         if len(args) != 3:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             return output
         if args[0] != "-b":
             self.raise_error("Wrong flags", "value", output)
@@ -385,7 +389,7 @@ class Find(Application):
         if "-name" not in args:
             recursive_find(path)
         if args[len(args) - 1] == "-name":
-            self.raise_error("-name requires additional arguments", "value", output)
+            self.raise_error("-name requires additional arguments", "type", output)
             return output
 
         # If globbing wildcard is given, this runs instead.
@@ -417,7 +421,7 @@ class Uniq(Application):
         output = []
 
         if len(args) > 2:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             return output
         if len(args) == 1:
             file = args[0]
@@ -490,7 +494,7 @@ class Sort(Application):
 
         rev = 0  # reverse order true/false
         if len(args) > 2:
-            self.raise_error("Wrong number of command line arguments", "value", output)
+            self.raise_error("Wrong number of command line arguments", "type", output)
             return output
         if len(args) == 1:
             file = args[0]
