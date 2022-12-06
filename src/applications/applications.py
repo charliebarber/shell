@@ -337,6 +337,7 @@ class Find(Application):
     def exec(self, args, input) -> str:
         output = []
         initPathLength = len(os.getcwd())
+        path = args[0]
 
         def recursive_find(path):
             files = os.listdir(path)
@@ -352,10 +353,12 @@ class Find(Application):
                 if os.path.isdir(newPath):
                     recursive_find(newPath)
 
-        path = args[0]
-
+        # If no directory is given, use current working directory
         if args[0] == "-name":
             path = os.getcwd()
+        if args[0] != "-name" and not os.path.exists(args[0]):
+            self.raise_error("directory given does not exist", "not_directory", output)
+            return output
         if "-name" not in args:
             recursive_find(path)
         if args[len(args) - 1] == "-name":
