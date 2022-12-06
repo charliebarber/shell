@@ -163,15 +163,24 @@ class Head(Application):
                 num_lines = int(args[1])
                 file = args[2]
 
-        if not os.path.exists(file):
-            self.raise_error(
-                f"No such file or directory: {file}", "file_not_found", output
-            )
+        if "#STDIN#" in file:
+            file = file[1]
+            lines = file.split("\n")
+            for i in range(0, min(len(lines), num_lines)):
+                output.append(lines[i] + "\n")
         else:
-            with open(file) as f:
-                lines = f.readlines()
-                for i in range(0, min(len(lines), num_lines)):
-                    output.append(lines[i])
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
+                    for i in range(0, min(len(lines), num_lines)):
+                        if i == len(lines) - 1:
+                            output.append(lines[i] + "\n")
+                        else:
+                            output.append(lines[i])
 
         return output
 
@@ -204,16 +213,26 @@ class Tail(Application):
                 num_lines = int(args[1])
                 file = args[2]
 
-        if not os.path.exists(file):
-            self.raise_error(
-                f"No such file or directory: {file}", "file_not_found", output
-            )
+        if "#STDIN#" in file:
+            file = file[1]
+            lines = file.split("\n")
+            display_length = min(len(lines), num_lines) + 1
+            for i in range(0, display_length):
+                output.append(lines[len(lines) - display_length + i] + "\n")
         else:
-            with open(file) as f:
-                lines = f.readlines()
-                display_length = min(len(lines), num_lines)
-                for i in range(0, display_length):
-                    output.append(lines[len(lines) - display_length + i])
+            if not os.path.exists(file):
+                self.raise_error(
+                    f"No such file or directory: {file}", "file_not_found", output
+                )
+            else:
+                with open(file) as f:
+                    lines = f.readlines()
+                    display_length = min(len(lines), num_lines)
+                    for i in range(0, display_length):
+                        if i == display_length - 1:
+                            output.append(lines[len(lines) - display_length + i] + "\n")
+                        else:
+                            output.append(lines[len(lines) - display_length + i])
 
         return output
 
