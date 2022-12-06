@@ -101,8 +101,15 @@ class Cat(Application):
                 for x in f:
                     output.append(x)
             else:
-                with open(a) as f:
-                    output.append(f.read())
+                if not os.path.exists(a):
+                    self.raise_error(
+                        f"No such file or directory: {a}", "file_not_found", output
+                    )
+                else:
+                    with open(a) as f:
+                        output.append(f.read())
+                    with open(a) as f:
+                        output.append(f.read())
 
         return output
 
@@ -213,16 +220,21 @@ class Grep(Application):
                 for line in file.split("\n"):
                     if line != "":
                         if re.match(pattern, line):
-                            output.append(line + '\n')
+                            output.append(line + "\n")
             else:
-                with open(file) as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        if re.match(pattern, line):
-                            if len(files) > 1:
-                                output.append(f"{file}:{line}")
-                            else:
-                                output.append(line)
+                if not os.path.exists(file):
+                    self.raise_error(
+                        f"No such file or directory: {file}", "file_not_found", output
+                    )
+                else:
+                    with open(file) as f:
+                        lines = f.readlines()
+                        for line in lines:
+                            if re.match(pattern, line):
+                                if len(files) > 1:
+                                    output.append(f"{file}:{line}")
+                                else:
+                                    output.append(line)
 
         return output
 
