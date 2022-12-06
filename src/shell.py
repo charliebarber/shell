@@ -89,7 +89,7 @@ def eval(cmdline, out) -> None:
             # Fetch app from factory
             application = get_application(app)
 
-            # Seperate output redirection from rest of command 
+            # Seperate output redirection from rest of command
             output_redirect_file = ""
             if ">" in args:
                 output_redirect_file = args[args.index(">") + 1]
@@ -111,12 +111,12 @@ def eval(cmdline, out) -> None:
                     out.append(output)
 
         else:
-            # Parse command into an app and its args 
+            # Parse command into an app and its args
             app, args = eval_cmd(command)
             # Fetch app from factory
             application = get_application(app)
 
-            # Seperate output redirection from rest of command 
+            # Seperate output redirection from rest of command
             output_redirect_file = ""
             if ">" in args:
                 output_redirect_file = args[args.index(">") + 1]
@@ -126,7 +126,7 @@ def eval(cmdline, out) -> None:
             args = input_redirection(args)
 
             app_outputs = application.exec(args, cmdline)
-            
+
             # Write output to file if provided
             # Else, append to stdout
             if output_redirect_file:
