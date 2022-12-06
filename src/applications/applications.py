@@ -106,13 +106,20 @@ class Cat(Application):
     def exec(self, args, input) -> str:
         output = []
         for a in args:
-            if not os.path.exists(a):
-                self.raise_error(
-                    f"No such file or directory: {a}", "file_not_found", output
-                )
+            if "#STDIN#" in a:
+                f = a[1:]
+                for x in f:
+                    output.append(x)
             else:
-                with open(a) as f:
-                    output.append(f.read())
+                if not os.path.exists(a):
+                    self.raise_error(
+                        f"No such file or directory: {a}", "file_not_found", output
+                    )
+                else:
+                    with open(a) as f:
+                        output.append(f.read())
+                    with open(a) as f:
+                        output.append(f.read())
 
         return output
 
@@ -233,19 +240,26 @@ class Grep(Application):
         pattern = args[0]
         files = args[1:]
         for file in files:
-            if not os.path.exists(file):
-                self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
-                )
-            else:
-                with open(file) as f:
-                    lines = f.readlines()
-                    for line in lines:
+            if "#STDIN#" in file:
+                file = file[1]
+                for line in file.split("\n"):
+                    if line != "":
                         if re.match(pattern, line):
-                            if len(files) > 1:
-                                output.append(f"{file}:{line}")
-                            else:
-                                output.append(line)
+                            output.append(line + "\n")
+            else:
+                if not os.path.exists(file):
+                    self.raise_error(
+                        f"No such file or directory: {file}", "file_not_found", output
+                    )
+                else:
+                    with open(file) as f:
+                        lines = f.readlines()
+                        for line in lines:
+                            if re.match(pattern, line):
+                                if len(files) > 1:
+                                    output.append(f"{file}:{line}")
+                                else:
+                                    output.append(line)
 
         return output
 
