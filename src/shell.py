@@ -29,6 +29,15 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
             else:
                 tokens.append(m.group(0))
 
+    # Check for input redirection infront of command and reorder if so
+    if tokens[0] == "<":
+        tokens.pop(0)
+        tokens.append(tokens[0])
+        tokens.pop(0)
+    elif "<" in tokens[0]:
+        tokens.append(tokens[0].strip("<"))
+        tokens.pop(0)
+
     app = tokens[0]
     args = tokens[1:]
 
