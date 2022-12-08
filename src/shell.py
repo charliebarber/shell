@@ -17,9 +17,12 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     It returns the app and arguments as a tuple.
     """
     tokens = []
-    for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-        # print(m)
-        if m.group(1) or m.group(2):
+    for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
+
+        # If matches command splitting regex, get rid of double quotes
+        if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
+            tokens.append(m.group(0).replace('"', ''))
+        elif m.group(7) or m.group(7):
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
         else:
