@@ -18,17 +18,11 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-        # print("m", m)
-        # print("group 0", m.group(0))
-        # print("group 1", m.group(1))
-        # print("group 2", m.group(2))
-        # print("group 7", m.group(7))
-        # If matches command splitting regex
+
+        # If matches command splitting regex, get rid of double quotes
         if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
-            # print("command split found", re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)))
             tokens.append(m.group(0).replace('"', ''))
         elif m.group(7) or m.group(7):
-            # print("group 1", m.group(1))
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
         else:
