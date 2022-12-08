@@ -154,7 +154,7 @@ def input_redirection(args: List[str]) -> List[str]:
         if "<" in arg and arg != "<":
             split = list(filter(None, arg.split("<")))
             if len(split) > 1:
-                raise ValueError("several files are specified for input redirection")
+                raise TypeError("Several files are specified for input redirection")
             for item in split:
                 reformated_args.append("<")
                 reformated_args.append(item)
@@ -163,7 +163,7 @@ def input_redirection(args: List[str]) -> List[str]:
 
     if "<" in reformated_args:
         if reformated_args.count("<") != 1:
-            raise ValueError("Several files are specified for input redirection")
+            raise TypeError("Several files are specified for input redirection")
         else:
             filename = reformated_args[reformated_args.index("<") + 1]
             if not os.path.exists(filename):
@@ -187,9 +187,9 @@ if __name__ == "__main__":
     args_num = len(sys.argv) - 1
     if args_num > 0:
         if args_num != 2:
-            raise ValueError("wrong number of command line arguments")
+            raise TypeError("Wrong number of command line arguments")
         if sys.argv[1] != "-c":
-            raise ValueError(f"unexpected command line argument {sys.argv[1]}")
+            raise ValueError(f"Unexpected command line argument {sys.argv[1]}")
         out = deque()
         eval(sys.argv[2], out)
         while len(out) > 0:
