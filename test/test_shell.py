@@ -18,7 +18,8 @@ from applications.applications import (
     Uniq,
     Sort,
 )
-#General template for how a unit test should be created (I think...)
+
+# General template for how a unit test should be created (I think...)
 """
 class TestFunction(unittest.TestCase):
     def __init__(self) -> None:
@@ -35,7 +36,7 @@ class TestFunction(unittest.TestCase):
     def test_function_property3(self):
         pass
 """
-# Believe this can be removed  
+# Believe this can be removed
 class TestShell(unittest.TestCase):
     def test_shell(self):
         out = deque()
@@ -134,10 +135,12 @@ class TestUniq(unittest.TestCase):
 
 class TestSort(unittest.TestCase):
     def __init__(self) -> None:
-        self.Sort = Sort
+        self.Sort = Sort(False)
 
-    def test_sort_dummy(self):
-        pass
+    def test_sort_(self):
+        args = ["test/test_dir1/test_file1.txt"]
+        result = self.Sort.exec(args, "")
+        self.assertEqual(result, ["AAA", "AAA", "BBB"])
 
 
 class TestCompleter(unittest.TestCase):
@@ -146,7 +149,7 @@ class TestCompleter(unittest.TestCase):
 
     def test_autocomplete_dummy(self):
         pass
-        
+
 
 class TestParser(unittest.TestCase):
     def __init__(self) -> None:
