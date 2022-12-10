@@ -17,9 +17,12 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     It returns the app and arguments as a tuple.
     """
     tokens = []
-    for m in re.finditer("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
+    for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
         # print(m)
-        if m.group(1) or m.group(2):
+        # If matches command splitting regex, get rid of double quotes
+        if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
+            tokens.append(m.group(0).replace('"', ''))
+        elif m.group(7) or m.group(7):
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
         else:
@@ -54,10 +57,14 @@ def eval(cmdline, out) -> None:
     # Commands in sequence are added to a queue and popped in order
     seq_queue = deque()
 
-    # Finds all commands seperated by semicolons and appends each to raw_commands
-    for m in re.finditer("([^;].?[^;]+)", cmdline):
-        if m.group(0):
-            seq_queue.append(m.group(0))
+    # # Finds all commands seperated by semicolons and appends each to raw_commands
+    # for m in re.finditer("([^;].*[\';\'][^;])", cmdline):
+    #     print("seq", m)
+    #     if m.group(0):
+    #         seq_queue.append(m.group(0))
+    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', cmdline):
+        # print("seq", m)
+        seq_queue.append(m)
 
     # Exec each command while sequence queue is not empty
     while seq_queue:
@@ -83,7 +90,7 @@ def eval(cmdline, out) -> None:
                     # Append the previous output to the new commands args
                     args.append(prev_out)
 
-                app_outputs = application.exec(args, cmdline)
+                app_outputs = application.exec(args)
                 prev_out = ["".join(app_outputs)]
 
             # Append the last command to seq queue
@@ -107,7 +114,7 @@ def eval(cmdline, out) -> None:
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
-            app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args)
 
             # Write output to file if provided
             # Else, append to stdout
@@ -134,7 +141,7 @@ def eval(cmdline, out) -> None:
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
-            app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args)
 
             # Write output to file if provided
             # Else, append to stdout
