@@ -12,11 +12,29 @@ import readline
 
 
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
-    print("CALLED EVALCMD WITH", command)
+    # print("CALLED EVALCMD WITH", command)
     """
     eval_cmd takes in a command string and parses it.
     It returns the app and arguments as a tuple.
     """
+
+    # Find if command substitution should take place
+    sub_start = command.find("`")
+    # If it was able to find a backquote (Start of command sub)
+    if sub_start != -1:
+        sub_end = command.find("`", sub_start + 1)
+        # If matching backquote exists
+        if sub_end != -1:
+            # print("SUb start", sub_start)
+            # print("sub end", sub_end)
+
+            sub_cmd = command[sub_start + 1:sub_end]
+            quoted_sub_cmd = command[sub_start:sub_end + 1]
+            # print("subcmd", sub_cmd)
+            output = "".join(run_cmd(sub_cmd, []))
+            output = output.replace("\n", '')
+            command = command.replace(quoted_sub_cmd, output)
+
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
 
@@ -45,25 +63,72 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     app = tokens[0]
     args = tokens[1:]
 
-    subsitution = False
-    substituted = ""
-    for index, arg in enumerate(args):
-        print(index, arg)
-        if len(arg) > 1 and arg[0] == '`':
-            print("substitution opened")
-            substituted += arg[1:]
-            subsitution = True
-        elif arg == '`':
-            print("substitution closed")
-            subsitution = False
-        elif subsitution:
-            substituted += " " + arg
+    # substitution = False
+    # substituted = ""
+    # sub_start = 0
+    # sub_end = 0
+    # for index, arg in enumerate(args):
+    #     # print(index, arg)
+    #     if (not substitution) and arg[0] == '`':
+    #         # print("substitution opened")
+    #         substituted += arg
+    #         sub_start = index
+    #         substitution = True
+    #     elif substitution and '`' in arg:
+    #         # print("substitution closed")
+    #         substituted += " " + arg
+    #         sub_end = index
+    #         substitution = False
+    #     elif substitution:
+    #         substituted += " " + arg
 
-    if substituted:
-        print("SUB", substituted)
-        eval_cmd(substituted)
+    # if substituted:
+    #     # print("OG ARGS", args)
+    #     substituted = substituted.replace("`", '')
+    #     substituted = substituted.replace("\n", '')
+    #     # print("SUB", substituted)
+    #     output = "".join(run_cmd(substituted, []))
+    #     output = output.replace("\n", '')
+    #     # print("output", output)
+    #     args[sub_start] = output
+    #     # print("SUBSTART ARGS", args)
+    #     i = sub_start + 1
+    #     while i <= sub_end:
+    #         args.pop(i)
+    #         i += 1
+
+        # print("NEW ARGS", args)
 
     return (app, args)
+
+def run_cmd(command, out):
+    # Parse command into an app and its args
+    app, args = eval_cmd(command)
+    # Fetch app from factory
+    application = get_application(app)
+
+    # Seperate output redirection from rest of command
+    output_redirect_file = ""
+    if ">" in args:
+        output_redirect_file = args[args.index(">") + 1]
+        args = args[: args.index(">")]
+
+    # Does input direction, changing any input to STDIN convention
+    args = input_redirection(args)
+
+    app_outputs = application.exec(args, cmdline)
+
+    # Write output to file if provided
+    # Else, append to stdout
+    if output_redirect_file:
+        f = open(output_redirect_file, "w")
+        for output in app_outputs:
+            f.write(output)
+    else:
+        for output in app_outputs:
+            out.append(output)
+
+    return out
 
 
 def eval(cmdline, out) -> None:
