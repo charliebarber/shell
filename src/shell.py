@@ -18,7 +18,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-
+        # print(m)
         # If matches command splitting regex, get rid of double quotes
         if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
             tokens.append(m.group(0).replace('"', ''))
@@ -57,10 +57,14 @@ def eval(cmdline, out) -> None:
     # Commands in sequence are added to a queue and popped in order
     seq_queue = deque()
 
-    # Finds all commands seperated by semicolons and appends each to raw_commands
-    for m in re.finditer("([^;].?[^;]+)", cmdline):
-        if m.group(0):
-            seq_queue.append(m.group(0))
+    # # Finds all commands seperated by semicolons and appends each to raw_commands
+    # for m in re.finditer("([^;].*[\';\'][^;])", cmdline):
+    #     print("seq", m)
+    #     if m.group(0):
+    #         seq_queue.append(m.group(0))
+    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', cmdline):
+        # print("seq", m)
+        seq_queue.append(m)
 
     # Exec each command while sequence queue is not empty
     while seq_queue:
