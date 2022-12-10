@@ -90,7 +90,7 @@ def eval(cmdline, out) -> None:
                     # Append the previous output to the new commands args
                     args.append(prev_out)
 
-                app_outputs = application.exec(args, cmdline)
+                app_outputs = application.exec(args)
                 prev_out = ["".join(app_outputs)]
 
             # Append the last command to seq queue
@@ -114,7 +114,7 @@ def eval(cmdline, out) -> None:
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
-            app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args)
 
             # Write output to file if provided
             # Else, append to stdout
@@ -141,7 +141,7 @@ def eval(cmdline, out) -> None:
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
-            app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args)
 
             # Write output to file if provided
             # Else, append to stdout
