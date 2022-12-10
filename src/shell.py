@@ -12,6 +12,7 @@ import readline
 
 
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
+    print("CALLED EVALCMD WITH", command)
     """
     eval_cmd takes in a command string and parses it.
     It returns the app and arguments as a tuple.
@@ -43,6 +44,24 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     app = tokens[0]
     args = tokens[1:]
+
+    subsitution = False
+    substituted = ""
+    for index, arg in enumerate(args):
+        print(index, arg)
+        if len(arg) > 1 and arg[0] == '`':
+            print("substitution opened")
+            substituted += arg[1:]
+            subsitution = True
+        elif arg == '`':
+            print("substitution closed")
+            subsitution = False
+        elif subsitution:
+            substituted += " " + arg
+
+    if substituted:
+        print("SUB", substituted)
+        eval_cmd(substituted)
 
     return (app, args)
 
