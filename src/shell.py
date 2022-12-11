@@ -18,22 +18,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     It returns the app and arguments as a tuple.
     """
 
-    # Find if command substitution should take place
-    sub_start = command.find("`")
-    # If it was able to find a backquote (Start of command sub)
-    if sub_start != -1:
-        sub_end = command.find("`", sub_start + 1)
-        # If matching backquote exists
-        if sub_end != -1:
-            # print("SUb start", sub_start)
-            # print("sub end", sub_end)
 
-            sub_cmd = command[sub_start + 1:sub_end]
-            quoted_sub_cmd = command[sub_start:sub_end + 1]
-            # print("subcmd", sub_cmd)
-            output = "".join(run_cmd(sub_cmd, []))
-            output = output.replace("\n", '')
-            command = command.replace(quoted_sub_cmd, output)
 
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
@@ -62,42 +47,6 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     app = tokens[0]
     args = tokens[1:]
-
-    # substitution = False
-    # substituted = ""
-    # sub_start = 0
-    # sub_end = 0
-    # for index, arg in enumerate(args):
-    #     # print(index, arg)
-    #     if (not substitution) and arg[0] == '`':
-    #         # print("substitution opened")
-    #         substituted += arg
-    #         sub_start = index
-    #         substitution = True
-    #     elif substitution and '`' in arg:
-    #         # print("substitution closed")
-    #         substituted += " " + arg
-    #         sub_end = index
-    #         substitution = False
-    #     elif substitution:
-    #         substituted += " " + arg
-
-    # if substituted:
-    #     # print("OG ARGS", args)
-    #     substituted = substituted.replace("`", '')
-    #     substituted = substituted.replace("\n", '')
-    #     # print("SUB", substituted)
-    #     output = "".join(run_cmd(substituted, []))
-    #     output = output.replace("\n", '')
-    #     # print("output", output)
-    #     args[sub_start] = output
-    #     # print("SUBSTART ARGS", args)
-    #     i = sub_start + 1
-    #     while i <= sub_end:
-    #         args.pop(i)
-    #         i += 1
-
-        # print("NEW ARGS", args)
 
     return (app, args)
 
@@ -130,6 +79,16 @@ def run_cmd(command, out):
 
     return out
 
+def get_sequence(command: str) -> deque:
+    q = deque()
+
+    # Finds all commands seperated by semicolons
+    for m in re.finditer("([^;].?[^;]+)", command):
+        if m.group(0):
+            q.append(m.group(0))
+
+    return q
+
 
 def eval(cmdline, out) -> None:
     """
@@ -138,13 +97,29 @@ def eval(cmdline, out) -> None:
     Adds output to the output queue given as an arg.
     """
 
-    # Commands in sequence are added to a queue and popped in order
-    seq_queue = deque()
+    # Find if command substitution should take place
+    sub_start = cmdline.find("`")
+    # If it was able to find a backquote (Start of command sub)
+    if sub_start != -1:
+        sub_end = cmdline.find("`", sub_start + 1)
+        # If matching backquote exists
+        if sub_end != -1:
+            # print("SUb start", sub_start)
+            # print("sub end", sub_end)
 
-    # Finds all commands seperated by semicolons and appends each to raw_commands
-    for m in re.finditer("([^;].?[^;]+)", cmdline):
-        if m.group(0):
-            seq_queue.append(m.group(0))
+            sub_cmd = cmdline[sub_start + 1:sub_end]
+            quoted_sub_cmd = cmdline[sub_start:sub_end + 1]
+            # print("subcmd", sub_cmd)
+            sub_queue = get_sequence(sub_cmd)
+            output = ""
+            while sub_queue:
+                output += " " + "".join(run_cmd(sub_queue.popleft(), []))
+                output = output.replace("\n", '')
+            # print("output", output)
+            cmdline = cmdline.replace(quoted_sub_cmd, output)
+
+    # Commands in sequence are added to a queue and popped in order
+    seq_queue = get_sequence(cmdline)
 
     # Exec each command while sequence queue is not empty
     while seq_queue:
