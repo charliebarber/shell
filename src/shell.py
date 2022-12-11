@@ -113,9 +113,12 @@ def eval(cmdline, out) -> None:
             sub_queue = get_sequence(sub_cmd)
             output = ""
             while sub_queue:
-                output += " " + "".join(run_cmd(sub_queue.popleft(), []))
+                if output:
+                    output += " " + "".join(run_cmd(sub_queue.popleft(), []))
+                else:
+                    output = "".join(run_cmd(sub_queue.popleft(), []))
                 output = output.replace("\n", '')
-            # print("output", output)
+                print("output", output)
             cmdline = cmdline.replace(quoted_sub_cmd, output)
 
     # Commands in sequence are added to a queue and popped in order
