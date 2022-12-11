@@ -1,3 +1,4 @@
+import os
 from pyclbr import Function
 import unittest
 
@@ -159,10 +160,12 @@ class TestUniq(unittest.TestCase):
 
 class TestSort(unittest.TestCase):
     def setUp(self) -> None:
-        self.Sort = Sort
+        self.sort = Sort(False)
 
-    def test_sort_dummy(self):
-        pass
+    def test_sort(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = self.sort.exec(args)
+        self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
 
 
 class TestCompleter(unittest.TestCase):
