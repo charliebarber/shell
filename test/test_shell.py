@@ -46,6 +46,18 @@ class TestFunction(unittest.TestCase):
 #         self.assertEqual(len(out), 0)
 
 
+"""HELPER FUNCTIONS"""
+
+
+def get_output(cmd: str) -> str:
+    """
+    This is a helper function which formats the output of single lines
+    in a way that is easier for assertEqual to interpret
+    """
+
+    return "".join(eval(cmd))
+
+
 class TestPwd(unittest.TestCase):
     def setUp(self) -> None:
         self.pwd = Pwd(False)
@@ -53,17 +65,17 @@ class TestPwd(unittest.TestCase):
 
     def test_pwd(self):
         args = []
-        output = self.pwd.exec(args).strip().split("\n")
-        self.assertEqual(output, ["/comp0010"])
+        output = self.pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split("\n")
-        self.assertEqual(output, ["/comp0010"])
+        output = self.unsafe_pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd_error(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split("\n")
+        output = self.unsafe_pwd.exec(args)
 
 
 class TestCd(unittest.TestCase):
@@ -170,6 +182,31 @@ class TestParser(unittest.TestCase):
 
     def test_parser_dummy(self):
         pass
+
+
+class TestSubstitution(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_simple_substitution(self):
+        output = get_output("echo `echo test`")
+        self.assertEqual(output, "test\n")
+
+    def test_seq_substitution(self):
+        output = get_output("echo `echo hello; echo world`")
+        self.assertEqual(output, "hello world\n")
+
+    def test_app_substitution(self):
+        output = get_output("`echo echo` test")
+        self.assertEqual(output, "test\n")
+
+    def test_failed_substitution(self):
+        output = get_output("echo `echo test")
+        self.assertEqual(output, "`echo test\n")
+
+    def test_dquotes_substitution(self):
+        output = get_output('echo "`echo test`"')
+        self.assertEqual(output, "test\n")
 
 
 if __name__ == "__main__":
