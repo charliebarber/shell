@@ -152,10 +152,69 @@ class TestFind(unittest.TestCase):
 
 class TestUniq(unittest.TestCase):
     def setUp(self) -> None:
-        self.Uniq = Uniq
+        self.uniq = Uniq(False)
+        self.unsafe_uniq = Uniq(True)
 
-    def test_uniq_dummy(self):
-        pass
+    def test_uniq(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt"]
+        output = self.uniq.exec(args)
+        self.assertEqual(output, ["AAA\n", "aaa\n", "AAA\n"])
+
+    def test_uniq_i(self):
+        args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt"]
+        output = self.uniq.exec(args)
+        self.assertEqual(output, ["AAA\n"])
+
+    def test_uniq_stdin(self):
+        args = [["#STDIN#", "AAA\naaa\nAAA\n"]]
+        output = self.uniq.exec(args)
+        self.assertEqual(output, ["AAA\n", "aaa\n", "AAA\n"])
+
+    def test_uniq_stdin_i(self):
+        args = ["-i", ["#STDIN#", "AAA\naaa\nAAA\n"]]
+        output = self.uniq.exec(args)
+        self.assertEqual(output, ["AAA\n"])
+
+    def test_uniq_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        with self.assertRaises(TypeError):
+            self.uniq.exec(args)
+
+    def test_uniq_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.uniq.exec(args)
+
+    def test_uniq_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.uniq.exec(args)
+
+    def test_unsafe_uniq_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        output = self.unsafe_uniq.exec(args)
+
+    def test_unsafe_uniq_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+        ]
+        output = self.unsafe_uniq.exec(args)
+
+    def test_unsafe_uniq_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        output = self.unsafe_uniq.exec(args)
 
 
 class TestSort(unittest.TestCase):
@@ -201,7 +260,7 @@ class TestSort(unittest.TestCase):
         args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
         output = self.unsafe_sort.exec(args)
 
-    def test_sort_extra_arg_error(self):
+    def test_unsafe_sort_extra_arg_error(self):
         args = [
             "/comp0010/test/test_dir/test_dir1/test_file1.txt",
             "test_arg",
