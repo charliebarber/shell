@@ -44,6 +44,16 @@ class TestFunction(unittest.TestCase):
 #         self.assertEqual(len(out), 0)
 
 
+"""HELPER FUNCTIONS"""
+def get_output(cmd: str) -> str:
+    """
+    This is a helper function which formats the output of single lines
+    in a way that is easier for assertEqual to interpret
+    """
+
+    return "".join(eval(cmd)) 
+
+
 class TestPwd(unittest.TestCase):
     def setUp(self) -> None:
         self.pwd = Pwd(False)
@@ -168,6 +178,29 @@ class TestParser(unittest.TestCase):
     def test_parser_dummy(self):
         pass
 
+class TestSubstitution(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_simple_substitution(self):
+        out = get_output("echo `echo test`")
+        self.assertEqual(out, "test\n")
+
+    def test_seq_substitution(self):
+        out = get_output("echo `echo hello; echo world`")
+        self.assertEqual(out, "hello world\n")
+
+    def test_app_substitution(self):
+        out = get_output("`echo echo` test")
+        self.assertEqual(out, "test\n")
+
+    def test_failed_substitution(self):
+        out = get_output("echo `echo test")
+        self.assertEqual(out, "`echo test\n")
+
+    def test_dquotes_substitution(self):
+        out = get_output('echo "`echo test`"')
+        self.assertEqual(out, "test\n")
 
 if __name__ == "__main__":
     unittest.main()

@@ -211,6 +211,7 @@ def eval(cmdline) -> deque:
                 for output in app_outputs:
                     out.append(output)
 
+    print("out", out)
     return out
 
 
