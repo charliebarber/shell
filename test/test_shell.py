@@ -22,7 +22,7 @@ from applications.applications import (
 # General template for how a unit test should be created (I think...)
 """
 class TestFunction(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         # instantiate the test class with the required function 
         # rather than passing it through the parser
         self.Func = Func
@@ -37,24 +37,36 @@ class TestFunction(unittest.TestCase):
         pass
 """
 # Believe this can be removed
-class TestShell(unittest.TestCase):
-    def test_shell(self):
-        out = deque()
-        eval("echo foo", out)
-        self.assertEqual(out.popleft(), "foo\n")
-        self.assertEqual(len(out), 0)
+# class TestShell(unittest.TestCase):
+#     def test_shell(self):
+#         out = deque()
+#         eval("echo foo", out)
+#         self.assertEqual(out.popleft(), "foo\n")
+#         self.assertEqual(len(out), 0)
 
 
 class TestPwd(unittest.TestCase):
-    def __init__(self) -> None:
-        self.Pwd = Pwd
+    def setUp(self) -> None:
+        self.pwd = Pwd(False)
+        self.unsafe_pwd = Pwd(True)
 
-    def test_pwd_dummy(self):
-        pass
+    def test_pwd(self):
+        args = []
+        output = self.pwd.exec(args).strip().split("\n")
+        self.assertEqual(output, ["/comp0010"])
+
+    def test_unsafe_pwd(self):
+        args = []
+        output = self.unsafe_pwd.exec(args).strip().split("\n")
+        self.assertEqual(output, ["/comp0010"])
+
+    def test_unsafe_pwd_error(self):
+        args = []
+        output = self.unsafe_pwd.exec(args).strip().split("\n")
 
 
 class TestCd(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Cd = Cd
 
     def test_cd_dummy(self):
@@ -62,7 +74,7 @@ class TestCd(unittest.TestCase):
 
 
 class TestLs(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Ls = Ls
 
     def test_ls_dummy(self):
@@ -70,7 +82,7 @@ class TestLs(unittest.TestCase):
 
 
 class TestCat(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Cat = Cat
 
     def test_cat_dummy(self):
@@ -78,7 +90,7 @@ class TestCat(unittest.TestCase):
 
 
 class TestEcho(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Echo = Echo
 
     def test_echo_dummy(self):
@@ -86,7 +98,7 @@ class TestEcho(unittest.TestCase):
 
 
 class TestHead(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Head = Head
 
     def test_head_dummy(self):
@@ -94,7 +106,7 @@ class TestHead(unittest.TestCase):
 
 
 class TestTail(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Tail = Tail
 
     def test_tail_dummy(self):
@@ -102,7 +114,7 @@ class TestTail(unittest.TestCase):
 
 
 class TestGrep(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Grep = Grep
 
     def test_grep_dummy(self):
@@ -110,7 +122,7 @@ class TestGrep(unittest.TestCase):
 
 
 class TestCut(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Cut = Cut
 
     def test_cut_dummy(self):
@@ -118,7 +130,7 @@ class TestCut(unittest.TestCase):
 
 
 class TestFind(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Find = Find
 
     def test_find_dummy(self):
@@ -126,7 +138,7 @@ class TestFind(unittest.TestCase):
 
 
 class TestUniq(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         self.Uniq = Uniq
 
     def test_uniq_dummy(self):
@@ -134,8 +146,8 @@ class TestUniq(unittest.TestCase):
 
 
 class TestSort(unittest.TestCase):
-    def __init__(self) -> None:
-        self.Sort = Sort(False)
+    def setUp(self) -> None:
+        self.Sort = Sort
 
     def test_sort_(self):
         args = ["test/test_dir1/test_file1.txt"]
@@ -144,7 +156,7 @@ class TestSort(unittest.TestCase):
 
 
 class TestCompleter(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         pass
 
     def test_autocomplete_dummy(self):
@@ -152,7 +164,7 @@ class TestCompleter(unittest.TestCase):
 
 
 class TestParser(unittest.TestCase):
-    def __init__(self) -> None:
+    def setUp(self) -> None:
         pass
 
     def test_parser_dummy(self):
