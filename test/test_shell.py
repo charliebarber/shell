@@ -1,3 +1,4 @@
+import os
 from pyclbr import Function
 import unittest
 
@@ -18,7 +19,8 @@ from applications.applications import (
     Uniq,
     Sort,
 )
-#General template for how a unit test should be created (I think...)
+
+# General template for how a unit test should be created (I think...)
 """
 class TestFunction(unittest.TestCase):
     def setUp(self) -> None:
@@ -35,7 +37,7 @@ class TestFunction(unittest.TestCase):
     def test_function_property3(self):
         pass
 """
-# Believe this can be removed  
+# Believe this can be removed
 # class TestShell(unittest.TestCase):
 #     def test_shell(self):
 #         out = deque()
@@ -45,13 +47,15 @@ class TestFunction(unittest.TestCase):
 
 
 """HELPER FUNCTIONS"""
+
+
 def get_output(cmd: str) -> str:
     """
     This is a helper function which formats the output of single lines
     in a way that is easier for assertEqual to interpret
     """
 
-    return "".join(eval(cmd)) 
+    return "".join(eval(cmd))
 
 
 class TestPwd(unittest.TestCase):
@@ -61,18 +65,17 @@ class TestPwd(unittest.TestCase):
 
     def test_pwd(self):
         args = []
-        output = self.pwd.exec(args).strip().split('\n')
-        self.assertEqual(output, ["/comp0010"])
+        output = self.pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split('\n')
-        self.assertEqual(output, ["/comp0010"])
+        output = self.unsafe_pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd_error(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split('\n')
-
+        output = self.unsafe_pwd.exec(args)
 
 
 class TestCd(unittest.TestCase):
@@ -157,10 +160,12 @@ class TestUniq(unittest.TestCase):
 
 class TestSort(unittest.TestCase):
     def setUp(self) -> None:
-        self.Sort = Sort
+        self.sort = Sort(False)
 
-    def test_sort_dummy(self):
-        pass
+    def test_sort(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = self.sort.exec(args)
+        self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
 
 
 class TestCompleter(unittest.TestCase):
@@ -169,7 +174,7 @@ class TestCompleter(unittest.TestCase):
 
     def test_autocomplete_dummy(self):
         pass
-        
+
 
 class TestParser(unittest.TestCase):
     def setUp(self) -> None:
@@ -178,29 +183,31 @@ class TestParser(unittest.TestCase):
     def test_parser_dummy(self):
         pass
 
+
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
         pass
 
     def test_simple_substitution(self):
-        out = get_output("echo `echo test`")
-        self.assertEqual(out, "test\n")
+        output = get_output("echo `echo test`")
+        self.assertEqual(output, "test\n")
 
     def test_seq_substitution(self):
-        out = get_output("echo `echo hello; echo world`")
-        self.assertEqual(out, "hello world\n")
+        output = get_output("echo `echo hello; echo world`")
+        self.assertEqual(output, "hello world\n")
 
     def test_app_substitution(self):
-        out = get_output("`echo echo` test")
-        self.assertEqual(out, "test\n")
+        output = get_output("`echo echo` test")
+        self.assertEqual(output, "test\n")
 
     def test_failed_substitution(self):
-        out = get_output("echo `echo test")
-        self.assertEqual(out, "`echo test\n")
+        output = get_output("echo `echo test")
+        self.assertEqual(output, "`echo test\n")
 
     def test_dquotes_substitution(self):
-        out = get_output('echo "`echo test`"')
-        self.assertEqual(out, "test\n")
+        output = get_output('echo "`echo test`"')
+        self.assertEqual(output, "test\n")
+
 
 if __name__ == "__main__":
     unittest.main()
