@@ -18,7 +18,8 @@ from applications.applications import (
     Uniq,
     Sort,
 )
-#General template for how a unit test should be created (I think...)
+
+# General template for how a unit test should be created (I think...)
 """
 class TestFunction(unittest.TestCase):
     def setUp(self) -> None:
@@ -35,7 +36,7 @@ class TestFunction(unittest.TestCase):
     def test_function_property3(self):
         pass
 """
-# Believe this can be removed  
+# Believe this can be removed
 # class TestShell(unittest.TestCase):
 #     def test_shell(self):
 #         out = deque()
@@ -51,18 +52,17 @@ class TestPwd(unittest.TestCase):
 
     def test_pwd(self):
         args = []
-        output = self.pwd.exec(args).strip().split('\n')
-        self.assertEqual(output, ["/comp0010"])
+        output = self.pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split('\n')
-        self.assertEqual(output, ["/comp0010"])
+        output = self.unsafe_pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd_error(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split('\n')
-
+        output = self.unsafe_pwd.exec(args)
 
 
 class TestCd(unittest.TestCase):
@@ -159,7 +159,7 @@ class TestCompleter(unittest.TestCase):
 
     def test_autocomplete_dummy(self):
         pass
-        
+
 
 class TestParser(unittest.TestCase):
     def setUp(self) -> None:
