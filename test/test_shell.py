@@ -161,11 +161,57 @@ class TestUniq(unittest.TestCase):
 class TestSort(unittest.TestCase):
     def setUp(self) -> None:
         self.sort = Sort(False)
+        self.unsafe_sort = Sort(True)
 
     def test_sort(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
         output = self.sort.exec(args)
         self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
+
+    def test_sort_r(self):
+        args = ["-r", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = self.sort.exec(args)
+        self.assertEqual(output, ["BBB\n", "AAA\n", "AAA\n"])
+
+    def test_sort_stdin(self):
+        args = [["#STDIN#", "AAA\nAAA\nBBB\n"]]
+        output = self.sort.exec(args)
+        self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
+
+    def test_sort_wrong_arg_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
+        with self.assertRaises(ValueError):
+            self.sort.exec(args)
+
+    def test_sort_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        with self.assertRaises(TypeError):
+            self.sort.exec(args)
+
+    def test_sort_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.sort.exec(args)
+
+    def test_unsafe_sort_wrong_arg_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
+        output = self.unsafe_sort.exec(args)
+
+    def test_sort_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        output = self.unsafe_sort.exec(args)
+
+    def test_unsafe_sort_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        output = self.unsafe_sort.exec(args)
 
 
 class TestCompleter(unittest.TestCase):
