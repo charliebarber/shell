@@ -64,7 +64,7 @@ def run_cmd(command, out):
     # Does input direction, changing any input to STDIN convention
     args = input_redirection(args)
 
-    app_outputs = application.exec(args, cmdline)
+    app_outputs = application.exec(args)
 
     # Write output to file if provided
     # Else, append to stdout
@@ -82,9 +82,8 @@ def get_sequence(command: str) -> deque:
     q = deque()
 
     # Finds all commands seperated by semicolons
-    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', cmdline):
-        if m.group(0):
-            q.append(m.group(0))
+    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', command):
+        q.append(m)
 
     return q
 
