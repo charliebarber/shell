@@ -20,7 +20,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-
+        # print(m)
         # If matches command splitting regex, get rid of double quotes
         if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
             tokens.append(m.group(0).replace('"', ''))
@@ -82,7 +82,7 @@ def get_sequence(command: str) -> deque:
     q = deque()
 
     # Finds all commands seperated by semicolons
-    for m in re.finditer("([^;].?[^;]+)", command):
+    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', cmdline):
         if m.group(0):
             q.append(m.group(0))
 
@@ -149,7 +149,7 @@ def eval(cmdline) -> deque:
                     # Append the previous output to the new commands args
                     args.append(prev_out)
 
-                app_outputs = application.exec(args, cmdline)
+                app_outputs = application.exec(args)
                 prev_out = ["".join(app_outputs)]
 
             # Append the last command to seq queue
@@ -173,7 +173,7 @@ def eval(cmdline) -> deque:
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
-            app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args)
 
             # Write output to file if provided
             # Else, append to stdout
@@ -200,7 +200,7 @@ def eval(cmdline) -> deque:
             # Does input direction, changing any input to STDIN convention
             args = input_redirection(args)
 
-            app_outputs = application.exec(args, cmdline)
+            app_outputs = application.exec(args)
 
             # Write output to file if provided
             # Else, append to stdout
