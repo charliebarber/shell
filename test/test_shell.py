@@ -46,10 +46,23 @@ class TestFunction(unittest.TestCase):
 
 class TestPwd(unittest.TestCase):
     def setUp(self) -> None:
-        self.Pwd = Pwd
+        self.pwd = Pwd(False)
+        self.unsafe_pwd = Pwd(True)
 
-    def test_pwd_dummy(self):
-        self.assertEqual("c", "c")
+    def test_pwd(self):
+        args = []
+        output = self.pwd.exec(args).strip().split('\n')
+        self.assertEqual(output, ["/comp0010"])
+
+    def test_unsafe_pwd(self):
+        args = []
+        output = self.unsafe_pwd.exec(args).strip().split('\n')
+        self.assertEqual(output, ["/comp0010"])
+
+    def test_unsafe_pwd_error(self):
+        args = []
+        output = self.unsafe_pwd.exec(args).strip().split('\n')
+
 
 
 class TestCd(unittest.TestCase):
