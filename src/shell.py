@@ -49,7 +49,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     return (app, args)
 
 def run_cmd(command, out):
-    # print("called with", command)
+    # print("run_cmd", command)
     # Parse command into an app and its args
     app, args = eval_cmd(command)
     # Fetch app from factory
@@ -72,6 +72,7 @@ def run_cmd(command, out):
         f = open(output_redirect_file, "w")
         for output in app_outputs:
             f.write(output)
+        # return None
     else:
         for output in app_outputs:
             out.append(output)
@@ -185,31 +186,38 @@ def eval(cmdline) -> deque:
                     out.append(output)
 
         else:
-            # Parse command into an app and its args
-            app, args = eval_cmd(command)
-            # Fetch app from factory
-            application = get_application(app)
+            app_outputs = run_cmd(command, out)
 
-            # Seperate output redirection from rest of command
-            output_redirect_file = ""
-            if ">" in args:
-                output_redirect_file = args[args.index(">") + 1]
-                args = args[: args.index(">")]
+            # # Parse command into an app and its args
+            # app, args = eval_cmd(command)
+            # # Fetch app from factory
+            # application = get_application(app)
 
-            # Does input direction, changing any input to STDIN convention
-            args = input_redirection(args)
+            # # Seperate output redirection from rest of command
+            # output_redirect_file = ""
+            # if ">" in args:
+            #     output_redirect_file = args[args.index(">") + 1]
+            #     args = args[: args.index(">")]
 
-            app_outputs = application.exec(args)
+            # # Does input direction, changing any input to STDIN convention
+            # args = input_redirection(args)
 
-            # Write output to file if provided
-            # Else, append to stdout
-            if output_redirect_file:
-                f = open(output_redirect_file, "w")
-                for output in app_outputs:
-                    f.write(output)
-            else:
-                for output in app_outputs:
-                    out.append(output)
+            # app_outputs = application.exec(args)
+
+            # # Write output to file if provided
+            # # Else, append to stdout
+            # if output_redirect_file:
+            #     f = open(output_redirect_file, "w")
+            #     for output in app_outputs:
+            #         f.write(output)
+            # else:
+            #     for output in app_outputs:
+            #         out.append(output)
+
+            # if app_outputs:
+            #     for output in app_outputs:
+            #         out.append(output)
+                
 
     return out
 
