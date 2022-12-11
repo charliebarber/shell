@@ -12,7 +12,6 @@ import readline
 
 
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
-    # print("CALLED EVALCMD WITH", command)
     """
     eval_cmd takes in a command string and parses it.
     It returns the app and arguments as a tuple.
@@ -20,7 +19,6 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
-        # print(m)
         # If matches command splitting regex, get rid of double quotes
         if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
             tokens.append(m.group(0).replace('"', ''))
@@ -48,10 +46,17 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     return (app, args)
 
-def run_cmd(command, out):
-    # print("run_cmd", command)
+def run_cmd(command, out, stdinargs=None) -> deque():
+    """
+    run_cmd finds the relevant application in the factory.
+    It then executes it with the correct args.
+    """
     # Parse command into an app and its args
-    app, args = eval_cmd(command)
+    if stdinargs:
+        app = command
+        args = stdinargs
+    else:
+        app, args = eval_cmd(command)
     # Fetch app from factory
     application = get_application(app)
 
@@ -80,8 +85,13 @@ def run_cmd(command, out):
     return out
 
 def get_sequence(command: str) -> deque:
-    q = deque()
+    """
+    get_sequence seperated the cmdline input by semicolons.
+    It puts the commands into the correct order in a queue.
+    Returns the queue.
+    """
 
+    q = deque()
     # Finds all commands seperated by semicolons
     for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', command):
         q.append(m)
@@ -104,22 +114,16 @@ def eval(cmdline) -> deque:
         sub_end = cmdline.find("`", sub_start + 1)
         # If matching backquote exists
         if sub_end != -1:
-            # print("SUb start", sub_start)
-            # print("sub end", sub_end)
-
             sub_cmd = cmdline[sub_start + 1:sub_end]
             quoted_sub_cmd = cmdline[sub_start:sub_end + 1]
-            # print("subcmd", sub_cmd)
             sub_queue = get_sequence(sub_cmd)
             output = ""
             while sub_queue:
-                # print("before q")
                 if output:
                     output += " " + "".join(run_cmd(sub_queue.popleft(), []))
                 else:
                     output = "".join(run_cmd(sub_queue.popleft(), []))
                 output = output.replace("\n", '')
-                # print("output", output)
             cmdline = cmdline.replace(quoted_sub_cmd, output)
 
     # Commands in sequence are added to a queue and popped in order
@@ -161,63 +165,9 @@ def eval(cmdline) -> deque:
                 # Append the previous output to the new commands args
                 args.append(prev_out)
 
-            # Fetch app from factory
-            application = get_application(app)
-
-            # Seperate output redirection from rest of command
-            output_redirect_file = ""
-            if ">" in args:
-                output_redirect_file = args[args.index(">") + 1]
-                args = args[: args.index(">")]
-
-            # Does input direction, changing any input to STDIN convention
-            args = input_redirection(args)
-
-            app_outputs = application.exec(args)
-
-            # Write output to file if provided
-            # Else, append to stdout
-            if output_redirect_file:
-                f = open(output_redirect_file, "w")
-                for output in app_outputs:
-                    f.write(output)
-            else:
-                for output in app_outputs:
-                    out.append(output)
-
+            run_cmd(app, out, args)
         else:
             app_outputs = run_cmd(command, out)
-
-            # # Parse command into an app and its args
-            # app, args = eval_cmd(command)
-            # # Fetch app from factory
-            # application = get_application(app)
-
-            # # Seperate output redirection from rest of command
-            # output_redirect_file = ""
-            # if ">" in args:
-            #     output_redirect_file = args[args.index(">") + 1]
-            #     args = args[: args.index(">")]
-
-            # # Does input direction, changing any input to STDIN convention
-            # args = input_redirection(args)
-
-            # app_outputs = application.exec(args)
-
-            # # Write output to file if provided
-            # # Else, append to stdout
-            # if output_redirect_file:
-            #     f = open(output_redirect_file, "w")
-            #     for output in app_outputs:
-            #         f.write(output)
-            # else:
-            #     for output in app_outputs:
-            #         out.append(output)
-
-            # if app_outputs:
-            #     for output in app_outputs:
-            #         out.append(output)
-                
 
     return out
 
