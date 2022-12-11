@@ -12,10 +12,12 @@ import readline
 
 
 def eval_cmd(command: str) -> Tuple[str, List[str]]:
+    # print("CALLED EVALCMD WITH", command)
     """
     eval_cmd takes in a command string and parses it.
     It returns the app and arguments as a tuple.
     """
+
     tokens = []
     for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
         # print(m)
@@ -46,25 +48,81 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     return (app, args)
 
+def run_cmd(command, out):
+    # print("called with", command)
+    # Parse command into an app and its args
+    app, args = eval_cmd(command)
+    # Fetch app from factory
+    application = get_application(app)
 
-def eval(cmdline, out) -> None:
+    # Seperate output redirection from rest of command
+    output_redirect_file = ""
+    if ">" in args:
+        output_redirect_file = args[args.index(">") + 1]
+        args = args[: args.index(">")]
+
+    # Does input direction, changing any input to STDIN convention
+    args = input_redirection(args)
+
+    app_outputs = application.exec(args)
+
+    # Write output to file if provided
+    # Else, append to stdout
+    if output_redirect_file:
+        f = open(output_redirect_file, "w")
+        for output in app_outputs:
+            f.write(output)
+    else:
+        for output in app_outputs:
+            out.append(output)
+
+    return out
+
+def get_sequence(command: str) -> deque:
+    q = deque()
+
+    # Finds all commands seperated by semicolons
+    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', command):
+        q.append(m)
+
+    return q
+
+
+def eval(cmdline) -> deque:
     """
     eval takes in cmdline input and parses it.
     It interprets the command and runs the correct application.
     Adds output to the output queue given as an arg.
     """
+    out = deque()
+
+    # Find if command substitution should take place
+    sub_start = cmdline.find("`")
+    # If it was able to find a backquote (Start of command sub)
+    if sub_start != -1:
+        sub_end = cmdline.find("`", sub_start + 1)
+        # If matching backquote exists
+        if sub_end != -1:
+            # print("SUb start", sub_start)
+            # print("sub end", sub_end)
+
+            sub_cmd = cmdline[sub_start + 1:sub_end]
+            quoted_sub_cmd = cmdline[sub_start:sub_end + 1]
+            # print("subcmd", sub_cmd)
+            sub_queue = get_sequence(sub_cmd)
+            output = ""
+            while sub_queue:
+                # print("before q")
+                if output:
+                    output += " " + "".join(run_cmd(sub_queue.popleft(), []))
+                else:
+                    output = "".join(run_cmd(sub_queue.popleft(), []))
+                output = output.replace("\n", '')
+                # print("output", output)
+            cmdline = cmdline.replace(quoted_sub_cmd, output)
 
     # Commands in sequence are added to a queue and popped in order
-    seq_queue = deque()
-
-    # # Finds all commands seperated by semicolons and appends each to raw_commands
-    # for m in re.finditer("([^;].*[\';\'][^;])", cmdline):
-    #     print("seq", m)
-    #     if m.group(0):
-    #         seq_queue.append(m.group(0))
-    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', cmdline):
-        # print("seq", m)
-        seq_queue.append(m)
+    seq_queue = get_sequence(cmdline)
 
     # Exec each command while sequence queue is not empty
     while seq_queue:
@@ -153,6 +211,8 @@ def eval(cmdline, out) -> None:
                 for output in app_outputs:
                     out.append(output)
 
+    return out
+
 
 # Takes current arguments and reformats to STDIN convention if there is input redirection required
 def input_redirection(args: List[str]) -> List[str]:
@@ -197,15 +257,15 @@ if __name__ == "__main__":
             raise TypeError("Wrong number of command line arguments")
         if sys.argv[1] != "-c":
             raise ValueError(f"Unexpected command line argument {sys.argv[1]}")
-        out = deque()
-        eval(sys.argv[2], out)
+        # out = deque()
+        out = eval(sys.argv[2])
         while len(out) > 0:
             print(out.popleft(), end="")
     else:
         while True:
             print(os.getcwd() + "> ", end="")
             cmdline = input()
-            out = deque()
-            eval(cmdline, out)
+            # out = deque()
+            out = eval(cmdline)
             while len(out) > 0:
                 print(out.popleft(), end="")
