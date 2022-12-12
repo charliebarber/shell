@@ -261,9 +261,13 @@ class Tail(Application):
                     display_length = min(len(lines), num_lines)
                     for i in range(0, display_length):
                         if i == display_length - 1:
-                            output.append(lines[len(lines) - display_length + i] + "\n")
+                            output.append(
+                                lines[len(lines) - display_length + i] + "\n"
+                                )
                         else:
-                            output.append(lines[len(lines) - display_length + i])
+                            output.append(
+                                lines[len(lines) - display_length + i]
+                                )
 
         return output
 
