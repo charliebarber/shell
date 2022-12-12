@@ -199,10 +199,68 @@ class TestHead(unittest.TestCase):
 
 class TestTail(unittest.TestCase):
     def setUp(self) -> None:
-        self.Tail = Tail
+        self.tail = Tail(False)
+        self.unsafe_tail = Tail(True)
 
-    def test_tail_dummy(self):
-        pass
+    def test_tail(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(6, 16)])
+
+    def test_tail_0(self):
+        args = ["-n", "0", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [])
+
+    def test_tail_5(self):
+        args = ["-n", "5", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(11, 16)])
+
+    def test_tail_stdin(self):
+        args = [["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(2, 13)])
+
+    def test_tail_stdin_5(self):
+        args = ["-n", "5", ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(7, 13)])
+
+    def test_tail_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        with self.assertRaises(TypeError):
+            self.tail.exec(args)
+
+    def test_tail_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.tail.exec(args)
+
+    def test_tail_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.tail.exec(args)
+
+    def test_unsafe_tail_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = self.unsafe_tail.exec(args)
+
+    def test_unsafe_tail_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        output = self.unsafe_tail.exec(args)
+
+    def test_unsafe_tail_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_tail.exec(args)
 
 
 class TestGrep(unittest.TestCase):
