@@ -43,7 +43,6 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
 
     app = tokens[0]
     args = tokens[1:]
-
     return (app, args)
 
 def run_cmd(command, out, stdinargs=None) -> deque():
@@ -98,6 +97,17 @@ def get_sequence(command: str) -> deque:
 
     return q
 
+def seperate_pipes(command: str) -> List[str]:
+    """
+    Seperate pipeline commands and return a list
+    """
+    cmds = []
+    # Regex to seperate by | chars
+    for m in re.finditer("([^\|].?[^\|]+)", command):
+        if m.group(0):
+            cmds.append(m.group(0))
+
+    return cmds
 
 def eval(cmdline) -> deque:
     """
@@ -136,16 +146,12 @@ def eval(cmdline) -> deque:
 
         # If it a pipeline command, must eval each cmd individually to store output
         if "|" in command:
-            cmds = []
-            # Regex to seperate by | chars
-            for m in re.finditer("([^\|].?[^\|]+)", command):
-                if m.group(0):
-                    cmds.append(m.group(0))
+            pipe_cmds = seperate_pipes(command)
 
             # Run commands and store their output
             prev_out = []
-            for i in range(len(cmds) - 1):
-                app, args = eval_cmd(cmds[i])
+            for i in range(len(pipe_cmds) - 1):
+                app, args = eval_cmd(pipe_cmds[i])
                 application = get_application(app)
                 if prev_out:
                     # STDIN flag added to allow the applications to process the stdin stream
@@ -157,7 +163,7 @@ def eval(cmdline) -> deque:
                 prev_out = ["".join(app_outputs)]
 
             # Append the last command to seq queue
-            app, args = eval_cmd(cmds[len(cmds) - 1])
+            app, args = eval_cmd(pipe_cmds[len(pipe_cmds) - 1])
 
             if prev_out:
                 # STDIN flag added to allow the applications to process the stdin stream
