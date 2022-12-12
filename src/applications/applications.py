@@ -365,6 +365,7 @@ class Find(Application):
         output = []
         initPathLength = len(os.getcwd())
         path = args[0]
+        print("currentPath: ", os.getcwd())
 
         def recursive_find(path):
             files = os.listdir(path)

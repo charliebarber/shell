@@ -1,3 +1,4 @@
+import os
 from pyclbr import Function
 import unittest
 
@@ -18,6 +19,7 @@ from applications.applications import (
     Uniq,
     Sort,
 )
+
 #General template for how a unit test should be created (I think...)
 """
 class TestFunction(unittest.TestCase):
@@ -58,7 +60,7 @@ class TestPwd(unittest.TestCase):
     def setUp(self) -> None:
         self.pwd = Pwd(False)
         self.unsafe_pwd = Pwd(True)
-
+"""
     def test_pwd(self):
         args = []
         output = self.pwd.exec(args).strip().split('\n')
@@ -72,7 +74,7 @@ class TestPwd(unittest.TestCase):
     def test_unsafe_pwd_error(self):
         args = []
         output = self.unsafe_pwd.exec(args).strip().split('\n')
-
+"""
 
 
 class TestCd(unittest.TestCase):
@@ -141,10 +143,15 @@ class TestCut(unittest.TestCase):
 
 class TestFind(unittest.TestCase):
     def setUp(self) -> None:
-        self.Find = Find
+        self.find = Find(False)
+        self.unsafe_find = Find(True)
+        os.chdir("/comp0010/test/test_dir/")
 
-    def test_find_dummy(self):
-        pass
+    def test_find(self):
+        args = ["-name", "file.txt"]
+        output = self.find.exec(args)
+        print(output)
+        self.assertEqual(output, ["./dir2/subdir/file.txt"])
 
 
 class TestUniq(unittest.TestCase):
