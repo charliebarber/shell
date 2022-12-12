@@ -75,7 +75,7 @@ class Ls(Application):
     """
     Ls implements the 'ls' shell function
     Lists the content of a directory.
-    It prints list of files and directories 
+    It prints list of files and directories
     separated by tabs and followed by a newline.
     Ignores files and directories whose names start with '.' .
     """
@@ -225,7 +225,7 @@ class Tail(Application):
         if len(args) != 1 and len(args) != 3:
             self.raise_error(
                 "Wrong number of command line arguments",
-                "type", 
+                "type",
                 output
                 )
             return output
@@ -515,7 +515,7 @@ class Uniq(Application):
         elif case == 1:
             for i in range(0, len(contents) - 1):
                 j = i
-                while ((j + 1) < len(contents) and 
+                while ((j + 1) < len(contents) and
                         contents[j].lower() == contents[
                     j + 1
                 ].lower()):
