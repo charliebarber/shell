@@ -113,14 +113,17 @@ def seperate_pipes(command: str) -> List[str]:
 
 def input_redirection(args: List[str]) -> List[str]:
     """
-    Takes current arguments and reformats to STDIN convention if there is input redirection required
+    Takes current arguments and reformats to STDIN convention
+    if there is input redirection required
     """
     reformated_args = []
     for arg in args:
         if "<" in arg and arg != "<":
             split = list(filter(None, arg.split("<")))
             if len(split) > 1:
-                raise TypeError("Several files are specified for input redirection")
+                raise TypeError(
+                    "Several files are specified for input redirection"
+                    )
             for item in split:
                 reformated_args.append("<")
                 reformated_args.append(item)
@@ -129,11 +132,15 @@ def input_redirection(args: List[str]) -> List[str]:
 
     if "<" in reformated_args:
         if reformated_args.count("<") != 1:
-            raise TypeError("Several files are specified for input redirection")
+            raise TypeError(
+                "Several files are specified for input redirection"
+                )
         else:
             filename = reformated_args[reformated_args.index("<") + 1]
             if not os.path.exists(filename):
-                raise FileNotFoundError("File for input redirection does not exist")
+                raise FileNotFoundError(
+                    "File for input redirection does not exist"
+                    )
             with open(filename, "r") as file:
                 data = file.read()
             reformated_args = reformated_args[: reformated_args.index("<")]
@@ -188,7 +195,7 @@ def eval(cmdline: str) -> deque:
         # Take command at head of queue
         command = seq_queue.popleft()
 
-        # If it a pipeline command, must eval each cmd individually to store output
+        # If pipeline command, must eval each cmd individually to store output
         if "|" in command:
             pipe_cmds = seperate_pipes(command)
 
@@ -198,7 +205,6 @@ def eval(cmdline: str) -> deque:
                 app, args = eval_cmd(pipe_cmds[i])
                 application = get_application(app)
                 if prev_out:
-                    # STDIN flag added to allow the applications to process the stdin stream
                     prev_out.insert(0, "#STDIN#")
                     # Append the previous output to the new commands args
                     args.append(prev_out)
@@ -210,7 +216,6 @@ def eval(cmdline: str) -> deque:
             app, args = eval_cmd(pipe_cmds[len(pipe_cmds) - 1])
 
             if prev_out:
-                # STDIN flag added to allow the applications to process the stdin stream
                 prev_out.insert(0, "#STDIN#")
                 # Append the previous output to the new commands args
                 args.append(prev_out)
