@@ -109,6 +109,36 @@ def seperate_pipes(command: str) -> List[str]:
 
     return cmds
 
+def input_redirection(args: List[str]) -> List[str]:
+    """
+    Takes current arguments and reformats to STDIN convention if there is input redirection required
+    """
+    reformated_args = []
+    for arg in args:
+        if "<" in arg and arg != "<":
+            split = list(filter(None, arg.split("<")))
+            if len(split) > 1:
+                raise TypeError("Several files are specified for input redirection")
+            for item in split:
+                reformated_args.append("<")
+                reformated_args.append(item)
+        else:
+            reformated_args.append(arg)
+
+    if "<" in reformated_args:
+        if reformated_args.count("<") != 1:
+            raise TypeError("Several files are specified for input redirection")
+        else:
+            filename = reformated_args[reformated_args.index("<") + 1]
+            if not os.path.exists(filename):
+                raise FileNotFoundError("File for input redirection does not exist")
+            with open(filename, "r") as file:
+                data = file.read()
+            reformated_args = reformated_args[: reformated_args.index("<")]
+            reformated_args.append(["#STDIN#", data])
+
+    return reformated_args
+
 def eval_substitution(cmdline: str) -> str:
     """
     Evaluate all command substitutions.
@@ -188,33 +218,7 @@ def eval(cmdline: str) -> deque:
     return out
 
 
-# Takes current arguments and reformats to STDIN convention if there is input redirection required
-def input_redirection(args: List[str]) -> List[str]:
-    reformated_args = []
-    for arg in args:
-        if "<" in arg and arg != "<":
-            split = list(filter(None, arg.split("<")))
-            if len(split) > 1:
-                raise TypeError("Several files are specified for input redirection")
-            for item in split:
-                reformated_args.append("<")
-                reformated_args.append(item)
-        else:
-            reformated_args.append(arg)
 
-    if "<" in reformated_args:
-        if reformated_args.count("<") != 1:
-            raise TypeError("Several files are specified for input redirection")
-        else:
-            filename = reformated_args[reformated_args.index("<") + 1]
-            if not os.path.exists(filename):
-                raise FileNotFoundError("File for input redirection does not exist")
-            with open(filename, "r") as file:
-                data = file.read()
-            reformated_args = reformated_args[: reformated_args.index("<")]
-            reformated_args.append(["#STDIN#", data])
-
-    return reformated_args
 
 
 def complete(text, state):
