@@ -133,10 +133,68 @@ class TestEcho(unittest.TestCase):
 
 class TestHead(unittest.TestCase):
     def setUp(self) -> None:
-        self.Head = Head
+        self.head = Head(False)
+        self.unsafe_head = Head(True)
 
-    def test_head_dummy(self):
-        pass
+    def test_head(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 11)])
+
+    def test_head_0(self):
+        args = ["-n", "0", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [])
+
+    def test_head_5(self):
+        args = ["-n", "5", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 6)])
+
+    def test_head_stdin(self):
+        args = [["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 11)])
+
+    def test_head_stdin_5(self):
+        args = ["-n", "5", ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 6)])
+
+    def test_head_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        with self.assertRaises(TypeError):
+            self.head.exec(args)
+
+    def test_head_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.head.exec(args)
+
+    def test_head_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.head.exec(args)
+
+    def test_unsafe_head_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = self.unsafe_head.exec(args)
+
+    def test_unsafe_head_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        output = self.unsafe_head.exec(args)
+
+    def test_unsafe_head_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_head.exec(args)
 
 
 class TestTail(unittest.TestCase):
