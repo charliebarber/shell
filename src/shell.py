@@ -45,6 +45,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     args = tokens[1:]
     return (app, args)
 
+
 def run_cmd(command, out, stdinargs=None) -> deque():
     """
     run_cmd finds the relevant application in the factory.
@@ -83,6 +84,7 @@ def run_cmd(command, out, stdinargs=None) -> deque():
 
     return out
 
+
 def get_sequence(command: str) -> deque:
     """
     get_sequence seperated the cmdline input by semicolons.
@@ -97,6 +99,7 @@ def get_sequence(command: str) -> deque:
 
     return q
 
+
 def seperate_pipes(command: str) -> List[str]:
     """
     Seperate pipeline commands and return a list
@@ -108,6 +111,7 @@ def seperate_pipes(command: str) -> List[str]:
             cmds.append(m.group(0))
 
     return cmds
+
 
 def input_redirection(args: List[str]) -> List[str]:
     """
@@ -139,6 +143,7 @@ def input_redirection(args: List[str]) -> List[str]:
 
     return reformated_args
 
+
 def eval_substitution(cmdline: str) -> str:
     """
     Evaluate all command substitutions.
@@ -165,6 +170,7 @@ def eval_substitution(cmdline: str) -> str:
             cmdline = cmdline.replace(quoted_sub_cmd, output)
 
     return cmdline
+
 
 def eval(cmdline: str) -> deque:
     """
@@ -216,9 +222,6 @@ def eval(cmdline: str) -> deque:
             app_outputs = run_cmd(command, out)
 
     return out
-
-
-
 
 
 def complete(text, state):
