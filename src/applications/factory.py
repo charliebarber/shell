@@ -16,8 +16,10 @@ from applications.applications import (
 
 def get_application(call) -> object:
     """
-    get_application follows the Factory pattern to create new application objects.
-    It looks up the call in a dictionary and returns a new Application object
+    get_application follows the Factory pattern
+    to create new application objects.
+    It looks up the call in a dictionary
+    and returns a new Application object
     """
 
     factory = {
