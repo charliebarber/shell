@@ -109,14 +109,12 @@ def seperate_pipes(command: str) -> List[str]:
 
     return cmds
 
-def eval(cmdline) -> deque:
+def eval_substitution(cmdline: str) -> str:
     """
-    eval takes in cmdline input and parses it.
-    It interprets the command and runs the correct application.
-    Adds output to the output queue given as an arg.
+    Evaluate all command substitutions.
+    Executes the commands and replaces them in cmdline with their output.
+    Returns the new cmdline string.
     """
-    out = deque()
-
     # Find if command substitution should take place
     sub_start = cmdline.find("`")
     # If it was able to find a backquote (Start of command sub)
@@ -136,6 +134,18 @@ def eval(cmdline) -> deque:
                 output = output.replace("\n", '')
             cmdline = cmdline.replace(quoted_sub_cmd, output)
 
+    return cmdline
+
+def eval(cmdline: str) -> deque:
+    """
+    eval takes in cmdline input and parses it.
+    It interprets the command and runs the correct application.
+    Adds output to the output queue given as an arg.
+    """
+    out = deque()
+
+    # Carry out any command substitutions
+    cmdline = eval_substitution(cmdline)
     # Commands in sequence are added to a queue and popped in order
     seq_queue = get_sequence(cmdline)
 
