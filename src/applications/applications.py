@@ -1,8 +1,6 @@
 import re
-import sys
 import os
 from os import listdir
-from collections import deque
 import glob
 
 from abc import ABC, abstractmethod
@@ -60,9 +58,13 @@ class Cd(Application):
     def exec(self, args) -> List[str]:
         output = []
         if len(args) == 0 or len(args) > 1:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments", "type", output
+                )
         if not os.path.exists(args[0]):
-            self.raise_error(f"No such directory: {args[0]}", "not_directory", output)
+            self.raise_error(
+                f"No such directory: {args[0]}", "not_directory", output
+                )
         else:
             os.chdir(args[0])
 
@@ -73,7 +75,8 @@ class Ls(Application):
     """
     Ls implements the 'ls' shell function
     Lists the content of a directory.
-    It prints list of files and directories separated by tabs and followed by a newline.
+    It prints list of files and directories
+    separated by tabs and followed by a newline.
     Ignores files and directories whose names start with '.' .
     """
 
@@ -85,12 +88,16 @@ class Ls(Application):
         if len(args) == 0:
             ls_dir = os.getcwd()
         elif len(args) > 1:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments", "type", output
+                )
             ls_dir = args[0]
         else:
             ls_dir = args[0]
         if not os.path.exists(ls_dir):
-            self.raise_error(f"No such directory: {ls_dir}", "not_directory", output)
+            self.raise_error(
+                f"No such directory: {ls_dir}", "not_directory", output
+                )
         else:
             for f in listdir(ls_dir):
                 if not f.startswith("."):
@@ -102,7 +109,8 @@ class Ls(Application):
 class Cat(Application):
     """
     Cat implements the 'cat' shell function
-    It concatenates the content of given files and prints to stdout
+    It concatenates the content of given files
+    and prints to stdout
     """
 
     def __init__(self, unsafe) -> None:
@@ -118,7 +126,9 @@ class Cat(Application):
             else:
                 if not os.path.exists(a):
                     self.raise_error(
-                        f"No such file or directory: {a}", "file_not_found", output
+                        f"No such file or directory: {a}",
+                        "file_not_found",
+                        output
                     )
                 else:
                     with open(a) as f:
@@ -130,7 +140,8 @@ class Cat(Application):
 class Echo(Application):
     """
     Echo implements the 'echo' shell function
-    It prints its args seperated by spaces and followed by newline to stdout
+    It prints its args seperated by spaces
+     and followed by newline to stdout
     """
 
     def __init__(self, unsafe) -> None:
@@ -155,14 +166,18 @@ class Head(Application):
         file = ""
 
         if len(args) != 1 and len(args) != 3:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments", "type", output
+                )
             return output
         if len(args) == 1:
             num_lines = 10
             file = args[0]
         if len(args) == 3:
             if args[0] != "-n":
-                self.raise_error("Wrong flags", "value", output)
+                self.raise_error(
+                    "Wrong flags", "value", output
+                    )
                 return output
             else:
                 num_lines = int(args[1])
@@ -176,7 +191,9 @@ class Head(Application):
         else:
             if not os.path.exists(file):
                 self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
+                    f"No such file or directory: {file}",
+                    "file_not_found",
+                    output
                 )
             else:
                 with open(file) as f:
@@ -194,7 +211,8 @@ class Tail(Application):
     """
     Tail implements the 'tail' shell function
     Prints the last N lines of a given file or stdin
-    If < N lines, it prints only existing lines without raising an exception
+    If < N lines, it prints only existing lines
+     without raising an exception
     """
 
     def __init__(self, unsafe) -> None:
@@ -205,14 +223,20 @@ class Tail(Application):
         file = ""
 
         if len(args) != 1 and len(args) != 3:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments",
+                "type",
+                output
+                )
             return output
         if len(args) == 1:
             num_lines = 10
             file = args[0]
         if len(args) == 3:
             if args[0] != "-n":
-                self.raise_error("Wrong flags", "value", output)
+                self.raise_error(
+                    "Wrong flags", "value", output
+                    )
                 return output
             else:
                 num_lines = int(args[1])
@@ -227,7 +251,9 @@ class Tail(Application):
         else:
             if not os.path.exists(file):
                 self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
+                    f"No such file or directory: {file}",
+                    "file_not_found",
+                    output
                 )
             else:
                 with open(file) as f:
@@ -235,9 +261,13 @@ class Tail(Application):
                     display_length = min(len(lines), num_lines)
                     for i in range(0, display_length):
                         if i == display_length - 1:
-                            output.append(lines[len(lines) - display_length + i] + "\n")
+                            output.append(
+                                lines[len(lines) - display_length + i] + "\n"
+                                )
                         else:
-                            output.append(lines[len(lines) - display_length + i])
+                            output.append(
+                                lines[len(lines) - display_length + i]
+                                )
 
         return output
 
@@ -256,7 +286,11 @@ class Grep(Application):
     def exec(self, args) -> List[str]:
         output = []
         if len(args) < 2:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments",
+                "type",
+                output
+                )
             return output
 
         pattern = args[0]
@@ -271,7 +305,9 @@ class Grep(Application):
             else:
                 if not os.path.exists(file):
                     self.raise_error(
-                        f"No such file or directory: {file}", "file_not_found", output
+                        f"No such file or directory: {file}",
+                        "file_not_found",
+                        output
                     )
                 else:
                     with open(file) as f:
@@ -299,10 +335,16 @@ class Cut(Application):
     def exec(self, args) -> List[str]:
         output = []
         if len(args) != 3:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments",
+                "type",
+                output
+                )
             return output
         if args[0] != "-b":
-            self.raise_error("Wrong flags", "value", output)
+            self.raise_error(
+                "Wrong flags", "value", output
+                )
             return output
 
         bytes = args[1].split(",")
@@ -315,7 +357,9 @@ class Cut(Application):
         else:
             if not os.path.exists(file):
                 self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
+                    f"No such file or directory: {file}",
+                    "file_not_found",
+                    output
                 )
             else:
                 with open(file) as f:
@@ -375,7 +419,7 @@ class Find(Application):
                     # outputs absolute path if directory is given at the start
                     output.append(newPath + "\n")
                 elif args[0] == "-name":
-                    # replaces absolute path with relative path if no directory is given.
+                    # replace absolute path with relative path if no dir given
                     output.append("." + newPath[initPathLength:] + "\n")
 
                 if os.path.isdir(newPath):
@@ -385,12 +429,20 @@ class Find(Application):
         if args[0] == "-name":
             path = os.getcwd()
         if args[0] != "-name" and not os.path.exists(args[0]):
-            self.raise_error("directory given does not exist", "not_directory", output)
+            self.raise_error(
+                "directory given does not exist",
+                "not_directory",
+                output
+                )
             return output
         if "-name" not in args:
             recursive_find(path)
         if args[len(args) - 1] == "-name":
-            self.raise_error("-name requires additional arguments", "type", output)
+            self.raise_error(
+                "-name requires additional arguments",
+                "type",
+                output
+                )
             return output
 
         # If globbing wildcard is given, this runs instead.
@@ -422,7 +474,11 @@ class Uniq(Application):
         output = []
 
         if len(args) > 2:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments",
+                "type",
+                output
+                )
             return output
         if len(args) == 1:
             file = args[0]
@@ -444,7 +500,9 @@ class Uniq(Application):
         else:
             if not os.path.exists(file):
                 self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
+                    f"No such file or directory: {file}",
+                    "file_not_found",
+                    output
                 )
                 return output
             else:
@@ -461,9 +519,10 @@ class Uniq(Application):
         elif case == 1:
             for i in range(0, len(contents) - 1):
                 j = i
-                while (j + 1) < len(contents) and contents[j].lower() == contents[
+                while ((j + 1) < len(contents) and
+                        contents[j].lower() == contents[
                     j + 1
-                ].lower():
+                ].lower()):
                     if (j + 1) not in indexToRemove:
                         indexToRemove.append(j + 1)
                     j += 1
@@ -495,13 +554,21 @@ class Sort(Application):
 
         rev = 0  # reverse order true/false
         if len(args) > 2:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                "Wrong number of command line arguments",
+                "type",
+                output
+                )
             return output
         if len(args) == 1:
             file = args[0]
         if len(args) == 2:
             if args[0] != "-r":
-                self.raise_error("Wrong flags", "value", output)
+                self.raise_error(
+                    "Wrong flags",
+                    "value",
+                    output
+                    )
                 return output
             else:
                 rev = 1
@@ -516,7 +583,9 @@ class Sort(Application):
         else:
             if not os.path.exists(file):
                 self.raise_error(
-                    f"No such file or directory: {file}", "file_not_found", output
+                    f"No such file or directory: {file}",
+                    "file_not_found",
+                    output
                 )
                 return output
             else:
