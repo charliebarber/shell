@@ -4,6 +4,7 @@ import unittest
 
 from shell import eval
 from collections import deque
+from typing import List
 
 from applications.applications import (
     Pwd,
@@ -20,7 +21,11 @@ from applications.applications import (
     Sort,
 )
 
+<<<<<<< HEAD
 #General template for how a unit test should be created (I think...)
+=======
+# General template for how a unit test should be created (I think...)
+>>>>>>> d5b01a51666cbec3f69eba41e49b12b5cd77f898
 """
 class TestFunction(unittest.TestCase):
     def setUp(self) -> None:
@@ -37,7 +42,7 @@ class TestFunction(unittest.TestCase):
     def test_function_property3(self):
         pass
 """
-# Believe this can be removed  
+# Believe this can be removed
 # class TestShell(unittest.TestCase):
 #     def test_shell(self):
 #         out = deque()
@@ -47,13 +52,27 @@ class TestFunction(unittest.TestCase):
 
 
 """HELPER FUNCTIONS"""
+
+
 def get_output(cmd: str) -> str:
     """
     This is a helper function which formats the output of single lines
     in a way that is easier for assertEqual to interpret
     """
+    return "".join(eval(cmd))
 
-    return "".join(eval(cmd)) 
+
+def format_output(output: List[str]) -> List[str]:
+    """
+    This is a helper function which formats the output of single lines
+    in a way that is easier for assertEqual to interpret
+    """
+
+    string = ""
+    for item in output:
+        string = string + item
+
+    return list(filter(None, string.split("\n")))
 
 
 class TestPwd(unittest.TestCase):
@@ -63,18 +82,22 @@ class TestPwd(unittest.TestCase):
 """
     def test_pwd(self):
         args = []
-        output = self.pwd.exec(args).strip().split('\n')
-        self.assertEqual(output, ["/comp0010"])
+        output = self.pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd(self):
         args = []
-        output = self.unsafe_pwd.exec(args).strip().split('\n')
-        self.assertEqual(output, ["/comp0010"])
+        output = self.unsafe_pwd.exec(args)
+        self.assertEqual(output, "/comp0010\n")
 
     def test_unsafe_pwd_error(self):
         args = []
+<<<<<<< HEAD
         output = self.unsafe_pwd.exec(args).strip().split('\n')
 """
+=======
+        output = self.unsafe_pwd.exec(args)
+>>>>>>> d5b01a51666cbec3f69eba41e49b12b5cd77f898
 
 
 class TestCd(unittest.TestCase):
@@ -103,10 +126,18 @@ class TestCat(unittest.TestCase):
 
 class TestEcho(unittest.TestCase):
     def setUp(self) -> None:
-        self.Echo = Echo
+        self.echo = Echo(False)
+        self.unsafe_echo = Echo(True)
 
-    def test_echo_dummy(self):
-        pass
+    def test_echo(self):
+        args = ["Hello World!"]
+        output = self.echo.exec(args)
+        self.assertEqual(output, "Hello World!\n")
+
+    """def test_echo_multi_arg(self):
+        args = ["Hello", "World!"]
+        output = self.echo.exec(args)
+        self.assertEqual(output, "Hello World!\n")"""
 
 
 class TestHead(unittest.TestCase):
@@ -156,18 +187,130 @@ class TestFind(unittest.TestCase):
 
 class TestUniq(unittest.TestCase):
     def setUp(self) -> None:
-        self.Uniq = Uniq
+        self.uniq = Uniq(False)
+        self.unsafe_uniq = Uniq(True)
 
-    def test_uniq_dummy(self):
-        pass
+    def test_uniq_case(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "aaa", "AAA"])
+
+    def test_uniq_no_case(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt"]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "CCC", "BBB", "AAA"])
+
+    def test_uniq_i(self):
+        args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA"])
+
+    def test_uniq_stdin(self):
+        args = [["#STDIN#", "AAA\naaa\nAAA\n"]]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "aaa", "AAA"])
+
+    def test_uniq_stdin_i(self):
+        args = ["-i", ["#STDIN#", "AAA\naaa\nAAA\n"]]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA"])
+
+    def test_uniq_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        with self.assertRaises(TypeError):
+            self.uniq.exec(args)
+
+    def test_uniq_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.uniq.exec(args)
+
+    def test_uniq_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.uniq.exec(args)
+
+    def test_unsafe_uniq_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        output = self.unsafe_uniq.exec(args)
+
+    def test_unsafe_uniq_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+        ]
+        output = self.unsafe_uniq.exec(args)
+
+    def test_unsafe_uniq_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        output = self.unsafe_uniq.exec(args)
 
 
 class TestSort(unittest.TestCase):
     def setUp(self) -> None:
-        self.Sort = Sort
+        self.sort = Sort(False)
+        self.unsafe_sort = Sort(True)
 
-    def test_sort_dummy(self):
-        pass
+    def test_sort(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["AAA", "AAA", "BBB"])
+
+    def test_sort_r(self):
+        args = ["-r", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["BBB", "AAA", "AAA"])
+
+    def test_sort_stdin(self):
+        args = [["#STDIN#", "AAA\nAAA\nBBB\n"]]
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["AAA", "AAA", "BBB"])
+
+    def test_sort_wrong_arg_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
+        with self.assertRaises(ValueError):
+            self.sort.exec(args)
+
+    def test_sort_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        with self.assertRaises(TypeError):
+            self.sort.exec(args)
+
+    def test_sort_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.sort.exec(args)
+
+    def test_unsafe_sort_wrong_arg_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
+        output = self.unsafe_sort.exec(args)
+
+    def test_unsafe_sort_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        output = self.unsafe_sort.exec(args)
+
+    def test_unsafe_sort_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        output = self.unsafe_sort.exec(args)
 
 
 class TestCompleter(unittest.TestCase):
@@ -176,7 +319,7 @@ class TestCompleter(unittest.TestCase):
 
     def test_autocomplete_dummy(self):
         pass
-        
+
 
 class TestParser(unittest.TestCase):
     def setUp(self) -> None:
@@ -185,29 +328,31 @@ class TestParser(unittest.TestCase):
     def test_parser_dummy(self):
         pass
 
+
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
         pass
 
     def test_simple_substitution(self):
-        out = get_output("echo `echo test`")
-        self.assertEqual(out, "test\n")
+        output = get_output("echo `echo test`")
+        self.assertEqual(output, "test\n")
 
     def test_seq_substitution(self):
-        out = get_output("echo `echo hello; echo world`")
-        self.assertEqual(out, "hello world\n")
+        output = get_output("echo `echo hello; echo world`")
+        self.assertEqual(output, "hello world\n")
 
     def test_app_substitution(self):
-        out = get_output("`echo echo` test")
-        self.assertEqual(out, "test\n")
+        output = get_output("`echo echo` test")
+        self.assertEqual(output, "test\n")
 
     def test_failed_substitution(self):
-        out = get_output("echo `echo test")
-        self.assertEqual(out, "`echo test\n")
+        output = get_output("echo `echo test")
+        self.assertEqual(output, "`echo test\n")
 
     def test_dquotes_substitution(self):
-        out = get_output('echo "`echo test`"')
-        self.assertEqual(out, "test\n")
+        output = get_output('echo "`echo test`"')
+        self.assertEqual(output, "test\n")
+
 
 if __name__ == "__main__":
     unittest.main()
