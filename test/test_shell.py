@@ -4,6 +4,7 @@ import unittest
 
 from shell import eval
 from collections import deque
+from typing import List
 
 from applications.applications import (
     Pwd,
@@ -54,8 +55,20 @@ def get_output(cmd: str) -> str:
     This is a helper function which formats the output of single lines
     in a way that is easier for assertEqual to interpret
     """
-
     return "".join(eval(cmd))
+
+
+def format_output(output: List[str]) -> List[str]:
+    """
+    This is a helper function which formats the output of single lines
+    in a way that is easier for assertEqual to interpret
+    """
+
+    string = ""
+    for item in output:
+        string = string + item
+
+    return list(filter(None, string.split("\n")))
 
 
 class TestPwd(unittest.TestCase):
@@ -165,28 +178,28 @@ class TestUniq(unittest.TestCase):
 
     def test_uniq_case(self):
         args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
-        output = self.uniq.exec(args)
-        self.assertEqual(output, ["AAA\n", "aaa\n", "AAA\n"])
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "aaa", "AAA"])
 
     def test_uniq_no_case(self):
         args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt"]
-        output = self.uniq.exec(args)
-        self.assertEqual(output, ["AAA\n", "BBB\n", "CCC\n", "BBB\n", "AAA\n"])
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "CCC", "BBB", "AAA"])
 
     def test_uniq_i(self):
         args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
-        output = self.uniq.exec(args)
-        self.assertEqual(output, ["AAA\n"])
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA"])
 
     def test_uniq_stdin(self):
         args = [["#STDIN#", "AAA\naaa\nAAA\n"]]
-        output = self.uniq.exec(args)
-        self.assertEqual(output, ["AAA\n", "aaa\n", "AAA\n"])
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "aaa", "AAA"])
 
     def test_uniq_stdin_i(self):
         args = ["-i", ["#STDIN#", "AAA\naaa\nAAA\n"]]
-        output = self.uniq.exec(args)
-        self.assertEqual(output, ["AAA\n"])
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA"])
 
     def test_uniq_extra_arg_error(self):
         args = [
@@ -237,18 +250,18 @@ class TestSort(unittest.TestCase):
 
     def test_sort(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
-        output = self.sort.exec(args)
-        self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["AAA", "AAA", "BBB"])
 
     def test_sort_r(self):
         args = ["-r", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
-        output = self.sort.exec(args)
-        self.assertEqual(output, ["BBB\n", "AAA\n", "AAA\n"])
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["BBB", "AAA", "AAA"])
 
     def test_sort_stdin(self):
         args = [["#STDIN#", "AAA\nAAA\nBBB\n"]]
-        output = self.sort.exec(args)
-        self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["AAA", "AAA", "BBB"])
 
     def test_sort_wrong_arg_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
