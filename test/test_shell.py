@@ -265,10 +265,40 @@ class TestTail(unittest.TestCase):
 
 class TestGrep(unittest.TestCase):
     def setUp(self) -> None:
-        self.Grep = Grep
+        self.grep = Grep(False)
+        self.unsafe_grep = Grep(True)
 
-    def test_grep_dummy(self):
-        pass
+    def test_grep(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_no_matches(self):
+        args = ["DDD", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, [])
+
+    def test_grep_re(self):
+        args = ["A..", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_files(self):
+        args = [
+            "...",
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:AAA",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:BBB",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:AAA",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt:CCC",
+            ],
+        )
 
 
 class TestCut(unittest.TestCase):
