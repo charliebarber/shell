@@ -6,6 +6,7 @@ from collections import deque
 import glob
 
 from abc import ABC, abstractmethod
+from typing import List
 
 
 class Application(ABC):
@@ -15,7 +16,7 @@ class Application(ABC):
     """
 
     @abstractmethod
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         pass
 
     def raise_error(self, message, type, output) -> None:
@@ -56,7 +57,7 @@ class Cd(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         if len(args) == 0 or len(args) > 1:
             self.raise_error("Wrong number of command line arguments", "type", output)
@@ -79,7 +80,7 @@ class Ls(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         if len(args) == 0:
             ls_dir = os.getcwd()
@@ -107,7 +108,7 @@ class Cat(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         for a in args:
             if "#STDIN#" in a:
@@ -149,7 +150,7 @@ class Head(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         file = ""
 
@@ -199,7 +200,7 @@ class Tail(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         file = ""
 
@@ -252,7 +253,7 @@ class Grep(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         if len(args) < 2:
             self.raise_error("Wrong number of command line arguments", "type", output)
@@ -295,7 +296,7 @@ class Cut(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         if len(args) != 3:
             self.raise_error("Wrong number of command line arguments", "type", output)
@@ -361,7 +362,7 @@ class Find(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
         initPathLength = len(os.getcwd())
         path = args[0]
@@ -417,7 +418,7 @@ class Uniq(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
 
         if len(args) > 2:
@@ -489,7 +490,7 @@ class Sort(Application):
     def __init__(self, unsafe) -> None:
         self.unsafe = unsafe
 
-    def exec(self, args) -> str:
+    def exec(self, args) -> List[str]:
         output = []
 
         rev = 0  # reverse order true/false

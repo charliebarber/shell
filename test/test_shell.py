@@ -104,10 +104,18 @@ class TestCat(unittest.TestCase):
 
 class TestEcho(unittest.TestCase):
     def setUp(self) -> None:
-        self.Echo = Echo
+        self.echo = Echo(False)
+        self.unsafe_echo = Echo(True)
 
-    def test_echo_dummy(self):
-        pass
+    def test_echo(self):
+        args = ["Hello World!"]
+        output = self.echo.exec(args)
+        self.assertEqual(output, "Hello World!\n")
+
+    """def test_echo_multi_arg(self):
+        args = ["Hello", "World!"]
+        output = self.echo.exec(args)
+        self.assertEqual(output, "Hello World!\n")"""
 
 
 class TestHead(unittest.TestCase):
