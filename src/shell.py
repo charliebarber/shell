@@ -1,11 +1,9 @@
-import imp
 import re
 import sys
 import os
 from typing import List, Tuple
 from applications.factory import get_application
 
-from os import listdir
 from collections import deque
 import glob
 import readline
