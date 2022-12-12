@@ -18,9 +18,9 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
 
     tokens = []
-    for m in re.finditer("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
+    for m in re.finditer(r"(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
         # If matches command splitting regex, get rid of double quotes
-        if re.search("(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
+        if re.search(r"(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
             tokens.append(m.group(0).replace('"', ''))
         elif m.group(7) or m.group(7):
             quoted = m.group(0)
@@ -106,7 +106,7 @@ def seperate_pipes(command: str) -> List[str]:
     """
     cmds = []
     # Regex to seperate by | chars
-    for m in re.finditer("([^\|].?[^\|]+)", command):
+    for m in re.finditer(r"([^\|].?[^\|]+)", command):
         if m.group(0):
             cmds.append(m.group(0))
 
