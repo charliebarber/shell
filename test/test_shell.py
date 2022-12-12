@@ -265,10 +265,63 @@ class TestTail(unittest.TestCase):
 
 class TestGrep(unittest.TestCase):
     def setUp(self) -> None:
-        self.Grep = Grep
+        self.grep = Grep(False)
+        self.unsafe_grep = Grep(True)
 
-    def test_grep_dummy(self):
-        pass
+    def test_grep(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_stdin(self):
+        args = ["AAA", ["#STDIN#", "AAA\nBBB\nAAA"]]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_no_matches(self):
+        args = ["DDD", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, [])
+
+    def test_grep_re(self):
+        args = ["A..", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_files(self):
+        args = [
+            "...",
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:AAA",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:BBB",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:AAA",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt:CCC",
+            ],
+        )
+
+    def test_grep_too_few_arg_error(self):
+        args = ["test_arg"]
+        with self.assertRaises(TypeError):
+            self.grep.exec(args)
+
+    def test_grep_file_not_exists_error(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.grep.exec(args)
+
+    def test_unsafe_grep_too_few_arg_error(self):
+        args = ["test_arg"]
+        output = self.unsafe_grep.exec(args)
+
+    def test_unsafe_grep_file_not_exists_error(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_grep.exec(args)
 
 
 class TestCut(unittest.TestCase):
