@@ -457,7 +457,7 @@ class Uniq(Application):
                 if contents[i] == contents[i + 1]:
                     indexToRemove.append(i + 1)
 
-        elif case == 1:
+        else:
             for i in range(0, len(contents) - 1):
                 j = i
                 while (j + 1) < len(contents) and contents[j].lower() == contents[

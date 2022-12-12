@@ -155,13 +155,18 @@ class TestUniq(unittest.TestCase):
         self.uniq = Uniq(False)
         self.unsafe_uniq = Uniq(True)
 
-    def test_uniq(self):
-        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt"]
+    def test_uniq_case(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
         output = self.uniq.exec(args)
         self.assertEqual(output, ["AAA\n", "aaa\n", "AAA\n"])
 
+    def test_uniq_no_case(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt"]
+        output = self.uniq.exec(args)
+        self.assertEqual(output, ["AAA\n", "BBB\n", "CCC\n", "BBB\n", "AAA\n"])
+
     def test_uniq_i(self):
-        args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt"]
+        args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
         output = self.uniq.exec(args)
         self.assertEqual(output, ["AAA\n"])
 
@@ -177,7 +182,7 @@ class TestUniq(unittest.TestCase):
 
     def test_uniq_extra_arg_error(self):
         args = [
-            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
             "test_arg",
             "test_arg",
         ]
@@ -187,7 +192,7 @@ class TestUniq(unittest.TestCase):
     def test_uniq_wrong_arg_error(self):
         args = [
             "test_arg",
-            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
         ]
         with self.assertRaises(ValueError):
             self.uniq.exec(args)
@@ -199,7 +204,7 @@ class TestUniq(unittest.TestCase):
 
     def test_unsafe_uniq_extra_arg_error(self):
         args = [
-            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
             "test_arg",
             "test_arg",
         ]
@@ -208,7 +213,7 @@ class TestUniq(unittest.TestCase):
     def test_unsafe_uniq_wrong_arg_error(self):
         args = [
             "test_arg",
-            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file.txt",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
         ]
         output = self.unsafe_uniq.exec(args)
 
