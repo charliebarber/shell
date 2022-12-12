@@ -406,7 +406,7 @@ class TestParsing(unittest.TestCase):
         output = eval_cmd("<dir1/file2.txt cat")
         self.assertEqual(expected, output)
 
-    #TODO
+    # TODO
     def test_eval_cmd_globbing(self):
         pass
 
