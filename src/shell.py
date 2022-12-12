@@ -220,7 +220,7 @@ def eval(cmdline: str) -> deque:
                 # Append the previous output to the new commands args
                 args.append(prev_out)
 
-            run_cmd(app, out, args)
+            app_outputs = run_cmd(app, out, args)
         else:
             app_outputs = run_cmd(command, out)
 

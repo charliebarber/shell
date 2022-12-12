@@ -2,7 +2,7 @@ import os
 from pyclbr import Function
 import unittest
 
-from shell import eval
+from shell import eval, eval_cmd, eval_substitution, get_sequence, run_cmd, seperate_pipes
 from collections import deque
 
 from applications.applications import (
@@ -321,6 +321,94 @@ class TestSubstitution(unittest.TestCase):
         output = get_output('echo "`echo test`"')
         self.assertEqual(output, "test\n")
 
+
+class TestParsing(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_get_sequence(self):
+        expected = deque()
+        expected.append("echo hello")
+        expected.append("echo world")
+        output = get_sequence("echo hello; echo world")
+        self.assertEqual(output, expected)
+
+    def test_seperate_pipes(self):
+        expected = ['cat articles/text1.txt ', ' grep "Interesting String"']
+        output = seperate_pipes('cat articles/text1.txt | grep "Interesting String"')
+        self.assertEqual(output, expected)
+
+    def test_eval_substitution(self):
+        expected = "echo test"
+        output = eval_substitution("echo `echo test`")
+        self.assertEqual(output, expected)
+
+    def test_run_cmd(self):
+        expected = deque()
+        for c in "test\n":
+            expected.append(c)
+        output = run_cmd("echo test", deque())
+        self.assertEqual(output, expected)
+
+    def test_run_cmd_stdin(self):
+        expected = deque()
+        for c in "hello world\n":
+            expected.append(c)
+        output = run_cmd("echo", deque(), ["hello", "world"])
+        self.assertEqual(output, expected)
+
+    def test_eval(self):
+        expected = deque()
+        for c in "test\n":
+            expected.append(c)
+        output = eval("echo test")
+        self.assertEqual(output, expected)
+
+    def test_eval_seq(self):
+        expected = deque()
+        for c in "hello\nworld\n":
+            expected.append(c)
+        output = eval("echo hello; echo world")
+        self.assertEqual(output, expected)
+
+    def test_eval_pipe(self):
+        expected = deque(["test\n"])
+        output = eval("echo test | cat")
+        self.assertEqual(output, expected)
+
+    def test_eval_pipe_for_loop(self):
+        expected = deque(["test\n"])
+        output = eval("echo test | cat | cat | cat")
+        self.assertEqual(output, expected)
+
+    def test_eval_cmd(self):
+        expected = ("echo", ["hello", "world"])
+        output = eval_cmd("echo hello world")
+        self.assertEqual(expected, output)
+
+    def test_eval_cmd_quoted(self):
+        expected = ("echo", ["hello world"])
+        output = eval_cmd('echo "hello world"')
+        self.assertEqual(expected, output)
+
+    def test_eval_cmd_splitting(self):
+        expected = ("echo", ["abc"])
+        output = eval_cmd('echo a"b"c')
+        self.assertEqual(expected, output)
+
+    def test_input_redir_infront(self):
+        expected = ('cat', ['dir1/file2.txt'])
+        output = eval_cmd("< dir1/file2.txt cat")
+        self.assertEqual(expected, output)
+
+    def test_input_redir_infront_nospace(self):
+        expected = ('cat', ['dir1/file2.txt'])
+        output = eval_cmd("<dir1/file2.txt cat")
+        self.assertEqual(expected, output)
+
+    #TODO
+    def test_eval_cmd_globbing(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
