@@ -178,10 +178,31 @@ class TestLs(unittest.TestCase):
 
 class TestCat(unittest.TestCase):
     def setUp(self) -> None:
-        self.Cat = Cat
+        os.chdir("/comp0010")
+        self.cat = Cat(False)
+        self.unsafe_cat = Cat(True)
 
-    def test_cat_dummy(self):
-        pass
+    def test_cat(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        output = format_output(self.cat.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "AAA", "CCC"])
+
+    def test_cat_stdin(self):
+        args = [["#STDIN#", "AAA\nBBB\nAAA"]]
+        output = format_output(self.cat.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "AAA"])
+
+    def test_cat_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.cat.exec(args)
+
+    def test_unsafe_cat_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_cat.exec(args)
 
 
 class TestEcho(unittest.TestCase):
