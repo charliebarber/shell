@@ -78,17 +78,13 @@ class TestPwd(unittest.TestCase):
 
     def test_pwd(self):
         args = []
-        output = self.pwd.exec(args)
-        self.assertEqual(output, "/comp0010\n")
+        output = format_output(self.pwd.exec(args))
+        self.assertEqual(output, ["/comp0010"])
 
     def test_unsafe_pwd(self):
         args = []
-        output = self.unsafe_pwd.exec(args)
-        self.assertEqual(output, "/comp0010\n")
-
-    def test_unsafe_pwd_error(self):
-        args = []
-        output = self.unsafe_pwd.exec(args)
+        output = format_output(self.unsafe_pwd.exec(args))
+        self.assertEqual(output, ["/comp0010"])
 
 
 class TestCd(unittest.TestCase):
