@@ -132,15 +132,15 @@ class TestLs(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "test",
-                "tools",
-                "requirements.txt",
-                "apps.svg",
-                "sh",
-                "system_test",
                 "README.md",
-                "src",
+                "tools",
+                "apps.svg",
+                "test",
+                "system_test",
+                "requirements.txt",
                 "Dockerfile",
+                "sh",
+                "src",
             ],
         )
 
@@ -150,10 +150,10 @@ class TestLs(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "test_file1.txt",
                 "test_file2.txt",
-                "test_file_wide.txt",
                 "test_file_long.txt",
+                "test_file1.txt",
+                "test_file_wide.txt",
             ],
         )
 
@@ -521,10 +521,10 @@ class TestFind(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "./test_file1.txt",
                 "./test_file2.txt",
-                "./test_file_wide.txt",
                 "./test_file_long.txt",
+                "./test_file1.txt",
+                "./test_file_wide.txt",
             ],
         )
 
@@ -534,10 +534,10 @@ class TestFind(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file2.txt",
-                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
             ],
         )
 
@@ -552,12 +552,12 @@ class TestFind(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file2.txt",
-                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
-                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
                 "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
             ],
         )
 
@@ -567,8 +567,8 @@ class TestFind(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
                 "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
             ],
         )
 
