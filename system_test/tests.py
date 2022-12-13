@@ -85,6 +85,7 @@ class TestShell(unittest.TestCase):
         result = stdout.strip()
         self.assertEqual(result, "hello world")
 
+
     def test_ls(self):
         cmdline = "ls"
         stdout = self.eval(cmdline)

@@ -125,10 +125,10 @@ class TestEcho(unittest.TestCase):
         output = self.echo.exec(args)
         self.assertEqual(output, "Hello World!\n")
 
-    """def test_echo_multi_arg(self):
+    def test_echo_multi_arg(self):
         args = ["Hello", "World!"]
         output = self.echo.exec(args)
-        self.assertEqual(output, "Hello World!\n")"""
+        self.assertEqual(output, "Hello World!\n")
 
 
 class TestHead(unittest.TestCase):
@@ -334,10 +334,51 @@ class TestCut(unittest.TestCase):
 
 class TestFind(unittest.TestCase):
     def setUp(self) -> None:
-        self.Find = Find
+        self.find = Find(False)
+        self.unsafe_find = Find(True)
 
-    def test_find_dummy(self):
-        pass
+    def test_find_nodir(self):
+        args = ["-name", "*.txt"]
+        tmp = os.getcwd()
+        os.chdir("/comp0010/test/test_dir/test_dir1")
+        output = self.find.exec(args)
+        os.chdir(tmp)
+        self.assertEqual(output, ['./test_file2.txt\n', './test_file1.txt\n'])
+        
+    def test_find_dir_noname(self):
+        args = ["/comp0010/test/test_dir/test_dir1"]
+        output = self.find.exec(args)
+        self.assertEqual(output, ['/comp0010/test/test_dir/test_dir1/test_file2.txt\n', '/comp0010/test/test_dir/test_dir1/test_file1.txt\n'])
+
+    def test_find_dir_name(self):
+        args = ["/comp0010/test/test_dir/", "-name", "test_file1.txt"]
+        output = self.find.exec(args)
+        self.assertEqual(output, ['/comp0010/test/test_dir/test_dir1/test_file1.txt\n'])
+
+    def test_find_dir_glob(self):
+        args = ["/comp0010/test/test_dir/test_dir2", "-name", "*.txt"]
+        output = self.find.exec(args)
+        self.assertEqual(output, ['/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt\n', '/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt\n'])
+
+    def test_find_wrongdir_error(self):
+        args = ["/wrongdir", "-name", "*.txt"]
+        with self.assertRaises(NotADirectoryError):
+            self.find.exec(args)
+
+    def test_find_noname_error(self):
+        args = ["/comp0010/test/test_dir", "-name"]
+        with self.assertRaises(TypeError):
+            self.find.exec(args)
+
+    def test_find_unsafe_wrongdir_error(self):
+        args = ["/wrongdir", "-name", "*.txt"]
+        output = self.unsafe_find.exec(args)
+        self.assertEqual(output, ["directory given does not exist\n"])
+
+    def test_find_unsafe_noname_error(self):
+        args = ["/comp0010/test/test_dir", "-name"]
+        output = self.unsafe_find.exec(args)
+        self.assertEqual(output, ["-name requires additional arguments\n"])
 
 
 class TestUniq(unittest.TestCase):

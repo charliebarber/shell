@@ -409,7 +409,7 @@ class Find(Application):
             elif args[0] == "-name":
                 for file in files:
                     output.append("." + file[initPathLength:] + "\n")
-
+        
         return output
 
 
