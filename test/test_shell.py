@@ -4,6 +4,7 @@ import unittest
 
 from shell import eval
 from collections import deque
+from typing import List
 
 from applications.applications import (
     Pwd,
@@ -54,118 +55,670 @@ def get_output(cmd: str) -> str:
     This is a helper function which formats the output of single lines
     in a way that is easier for assertEqual to interpret
     """
-
     return "".join(eval(cmd))
+
+
+def format_output(output: List[str]) -> List[str]:
+    """
+    This is a helper function which formats the output of single lines
+    in a way that is easier for assertEqual to interpret
+    """
+
+    string = ""
+    for item in output:
+        string = string + item
+
+    return list(filter(None, string.split("\n")))
 
 
 class TestPwd(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.pwd = Pwd(False)
         self.unsafe_pwd = Pwd(True)
 
     def test_pwd(self):
         args = []
-        output = self.pwd.exec(args)
-        self.assertEqual(output, "/comp0010\n")
+        output = format_output(self.pwd.exec(args))
+        self.assertEqual(output, ["/comp0010"])
 
     def test_unsafe_pwd(self):
         args = []
-        output = self.unsafe_pwd.exec(args)
-        self.assertEqual(output, "/comp0010\n")
-
-    def test_unsafe_pwd_error(self):
-        args = []
-        output = self.unsafe_pwd.exec(args)
+        output = format_output(self.unsafe_pwd.exec(args))
+        self.assertEqual(output, ["/comp0010"])
 
 
 class TestCd(unittest.TestCase):
     def setUp(self) -> None:
-        self.Cd = Cd
+        os.chdir("/comp0010")
+        self.cd = Cd(False)
+        self.unsafe_cd = Cd(True)
 
-    def test_cd_dummy(self):
-        pass
+    def test_cd(self):
+        tmp = os.getcwd()
+        args = ["test"]
+        self.cd.exec(args)
+        self.assertEqual(os.getcwd(), "/comp0010/test")
+        os.chdir(tmp)
+
+    def test_cd_extra_arg_error(self):
+        args = ["test", "test_arg"]
+        with self.assertRaises(TypeError):
+            self.cd.exec(args)
+
+    def test_cd_directory_not_exists_error(self):
+        args = ["no_dir"]
+        with self.assertRaises(NotADirectoryError):
+            self.cd.exec(args)
+
+    def test_unsafe_cd_extra_arg_error(self):
+        args = ["test", "test_arg"]
+        output = self.unsafe_cd.exec(args)
+
+    def test_unsafe_cd_directory_not_exists_error(self):
+        args = ["no_dir"]
+        output = self.unsafe_cd.exec(args)
 
 
 class TestLs(unittest.TestCase):
     def setUp(self) -> None:
-        self.Ls = Ls
+        os.chdir("/comp0010")
+        self.ls = Ls(False)
+        self.unsafe_ls = Ls(True)
 
-    def test_ls_dummy(self):
-        pass
+    def test_ls(self):
+        args = []
+        output = format_output(self.ls.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "test",
+                "tools",
+                "requirements.txt",
+                "apps.svg",
+                "sh",
+                "system_test",
+                "README.md",
+                "src",
+                "Dockerfile",
+            ],
+        )
+
+    def test_ls_dir(self):
+        args = ["/comp0010/test/test_dir/test_dir1/"]
+        output = format_output(self.ls.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "test_file1.txt",
+                "test_file2.txt",
+                "test_file_wide.txt",
+                "test_file_long.txt",
+            ],
+        )
+
+    def test_ls_extra_arg_error(self):
+        args = ["test_arg", "test_arg"]
+        with self.assertRaises(TypeError):
+            self.ls.exec(args)
+
+    def test_ls_directory_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_no_dir/"]
+        with self.assertRaises(NotADirectoryError):
+            self.ls.exec(args)
+
+    def test_unsafe_ls_extra_arg_error(self):
+        args = ["test_arg", "test_arg"]
+        output = self.unsafe_ls.exec(args)
+
+    def test_unsafe_ls_directory_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_no_dir/"]
+        output = self.unsafe_ls.exec(args)
 
 
 class TestCat(unittest.TestCase):
     def setUp(self) -> None:
-        self.Cat = Cat
+        os.chdir("/comp0010")
+        self.cat = Cat(False)
+        self.unsafe_cat = Cat(True)
 
-    def test_cat_dummy(self):
-        pass
+    def test_cat(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        output = format_output(self.cat.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "AAACCC"])
+
+    def test_cat_stdin(self):
+        args = [["#STDIN#", "AAA\nBBB\nAAA"]]
+        output = format_output(self.cat.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "AAA"])
+
+    def test_cat_no_arg_error(self):
+        args = []
+        with self.assertRaises(TypeError):
+            self.cat.exec(args)
+
+    def test_cat_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.cat.exec(args)
+
+    def test_unsafe_cat_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_cat.exec(args)
+
+    def test_unsafe_cat_no_arg_error(self):
+        args = []
+        output = self.unsafe_cat.exec(args)
 
 
 class TestEcho(unittest.TestCase):
     def setUp(self) -> None:
-        self.Echo = Echo
+        os.chdir("/comp0010")
+        self.echo = Echo(False)
+        self.unsafe_echo = Echo(True)
 
-    def test_echo_dummy(self):
-        pass
+    def test_echo(self):
+        args = ["Hello World!"]
+        output = format_output(self.echo.exec(args))
+        self.assertEqual(output, ["Hello World!"])
+
+    def test_echo_multi_arg(self):
+        args = ["Hello", "World!"]
+        output = format_output(self.echo.exec(args))
+        self.assertEqual(output, ["Hello World!"])
 
 
 class TestHead(unittest.TestCase):
     def setUp(self) -> None:
-        self.Head = Head
+        os.chdir("/comp0010")
+        self.head = Head(False)
+        self.unsafe_head = Head(True)
 
-    def test_head_dummy(self):
-        pass
+    def test_head(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 11)])
+
+    def test_head_0(self):
+        args = ["-n", "0", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [])
+
+    def test_head_5(self):
+        args = ["-n", "5", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 6)])
+
+    def test_head_stdin(self):
+        args = [["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 11)])
+
+    def test_head_stdin_5(self):
+        args = ["-n", "5", ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.head.exec(args))
+        self.assertEqual(output, [str(i) for i in range(1, 6)])
+
+    def test_head_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        with self.assertRaises(TypeError):
+            self.head.exec(args)
+
+    def test_head_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.head.exec(args)
+
+    def test_head_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.head.exec(args)
+
+    def test_unsafe_head_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = self.unsafe_head.exec(args)
+
+    def test_unsafe_head_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        output = self.unsafe_head.exec(args)
+
+    def test_unsafe_head_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_head.exec(args)
 
 
 class TestTail(unittest.TestCase):
     def setUp(self) -> None:
-        self.Tail = Tail
+        os.chdir("/comp0010")
+        self.tail = Tail(False)
+        self.unsafe_tail = Tail(True)
 
-    def test_tail_dummy(self):
-        pass
+    def test_tail(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(6, 16)])
+
+    def test_tail_0(self):
+        args = ["-n", "0", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [])
+
+    def test_tail_5(self):
+        args = ["-n", "5", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(11, 16)])
+
+    def test_tail_stdin(self):
+        args = [["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(2, 13)])
+
+    def test_tail_stdin_5(self):
+        args = ["-n", "5", ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        output = format_output(self.tail.exec(args))
+        self.assertEqual(output, [str(i) for i in range(7, 13)])
+
+    def test_tail_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        with self.assertRaises(TypeError):
+            self.tail.exec(args)
+
+    def test_tail_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.tail.exec(args)
+
+    def test_tail_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.tail.exec(args)
+
+    def test_unsafe_tail_extra_arg_error(self):
+        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        output = self.unsafe_tail.exec(args)
+
+    def test_unsafe_tail_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+        ]
+        output = self.unsafe_tail.exec(args)
+
+    def test_unsafe_tail_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_tail.exec(args)
 
 
 class TestGrep(unittest.TestCase):
     def setUp(self) -> None:
-        self.Grep = Grep
+        os.chdir("/comp0010")
+        self.grep = Grep(False)
+        self.unsafe_grep = Grep(True)
 
-    def test_grep_dummy(self):
-        pass
+    def test_grep(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_stdin(self):
+        args = ["AAA", ["#STDIN#", "AAA\nBBB\nAAA"]]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_no_matches(self):
+        args = ["DDD", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, [])
+
+    def test_grep_re(self):
+        args = ["A..", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(output, ["AAA", "AAA"])
+
+    def test_grep_files(self):
+        args = [
+            "...",
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        output = format_output(self.grep.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:AAA",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:BBB",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt:AAA",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt:CCC",
+            ],
+        )
+
+    def test_grep_too_few_arg_error(self):
+        args = ["test_arg"]
+        with self.assertRaises(TypeError):
+            self.grep.exec(args)
+
+    def test_grep_file_not_exists_error(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.grep.exec(args)
+
+    def test_unsafe_grep_too_few_arg_error(self):
+        args = ["test_arg"]
+        output = self.unsafe_grep.exec(args)
+
+    def test_unsafe_grep_file_not_exists_error(self):
+        args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_grep.exec(args)
 
 
 class TestCut(unittest.TestCase):
     def setUp(self) -> None:
-        self.Cut = Cut
+        os.chdir("/comp0010")
+        self.cut = Cut(False)
+        self.unsafe_cut = Cut(True)
 
-    def test_cut_dummy(self):
-        pass
+    def test_cut(self):
+        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["A", "B", "A"])
+
+    def test_cut_interval(self):
+        args = ["-b", "1-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_open_interval_right(self):
+        args = ["-b", "2-", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_open_interval_left(self):
+        args = ["-b", "-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_overlapping_interval(self):
+        args = ["-b", "3-6,4-9", "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["CDEFGHI"])
+
+    def test_cut_overlapping_bytes(self):
+        args = ["-b", "3-5,4", "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["CDE"])
+
+    def test_cut_overlapping_open_interval_right(self):
+        args = ["-b", "1-,2-", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "AAA"])
+
+    def test_cut_overlapping_open_interval_left(self):
+        args = ["-b", "-1,-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_stdin(self):
+        args = ["-b", "2", ["#STDIN#", "AAA\nBBB\nAAA"]]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["A", "B", "A"])
+
+    def test_cut_extra_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg", "test_arg"]
+        with self.assertRaises(TypeError):
+            self.cut.exec(args)
+
+    def test_cut_wrong_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg"]
+        with self.assertRaises(ValueError):
+            self.cut.exec(args)
+
+    def test_cut_file_not_exists_error(self):
+        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.cut.exec(args)
+
+    def test_unsafe_cut_extra_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg", "test_arg"]
+        output = self.unsafe_cut.exec(args)
+
+    def test_unsafe_cut_wrong_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg"]
+        output = self.unsafe_cut.exec(args)
+
+    def test_unsafe_cut_file_not_exists_error(self):
+        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_cut.exec(args)
 
 
 class TestFind(unittest.TestCase):
     def setUp(self) -> None:
-        self.Find = Find
+        os.chdir("/comp0010")
+        self.find = Find(False)
+        self.unsafe_find = Find(True)
 
-    def test_find_dummy(self):
-        pass
+    def test_find_nodir(self):
+        args = ["-name", "*.txt"]
+        tmp = os.getcwd()
+        os.chdir("/comp0010/test/test_dir/test_dir1")
+        output = format_output(self.find.exec(args))
+        os.chdir(tmp)
+        self.assertEqual(
+            output,
+            [
+                "./test_file1.txt",
+                "./test_file2.txt",
+                "./test_file_wide.txt",
+                "./test_file_long.txt",
+            ],
+        )
+
+    def test_find_noname(self):
+        args = ["/comp0010/test/test_dir/test_dir1"]
+        output = format_output(self.find.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+            ],
+        )
+
+    def test_find(self):
+        args = ["/comp0010/test/test_dir/", "-name", "test_file1.txt"]
+        output = format_output(self.find.exec(args))
+        self.assertEqual(output, ["/comp0010/test/test_dir/test_dir1/test_file1.txt"])
+
+    def test_find_subdirs(self):
+        args = ["/comp0010/test/test_dir", "-name", "*.txt"]
+        output = format_output(self.find.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            ],
+        )
+
+    def test_find_dir_glob(self):
+        args = ["/comp0010/test/test_dir/test_dir2", "-name", "*.txt"]
+        output = format_output(self.find.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            ],
+        )
+
+    def test_find_no_dir_error(self):
+        args = ["/nodir", "-name", "*.txt"]
+        with self.assertRaises(NotADirectoryError):
+            self.find.exec(args)
+
+    def test_find_noname_error(self):
+        args = ["/comp0010/test/test_dir", "-name"]
+        with self.assertRaises(TypeError):
+            self.find.exec(args)
+
+    def test_unsafe_find_no_dir_error(self):
+        args = ["/nodir", "-name", "*.txt"]
+        output = self.unsafe_find.exec(args)
+
+    def test_unsafe_find_noname_error(self):
+        args = ["/comp0010/test/test_dir", "-name"]
+        output = self.unsafe_find.exec(args)
 
 
 class TestUniq(unittest.TestCase):
     def setUp(self) -> None:
-        self.Uniq = Uniq
+        os.chdir("/comp0010")
+        self.uniq = Uniq(False)
+        self.unsafe_uniq = Uniq(True)
 
-    def test_uniq_dummy(self):
-        pass
+    def test_uniq_case(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "aaa", "AAA"])
+
+    def test_uniq_no_case(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt"]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "CCC", "BBB", "AAA"])
+
+    def test_uniq_i(self):
+        args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA"])
+
+    def test_uniq_stdin(self):
+        args = [["#STDIN#", "AAA\naaa\nAAA\n"]]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA", "aaa", "AAA"])
+
+    def test_uniq_stdin_i(self):
+        args = ["-i", ["#STDIN#", "AAA\naaa\nAAA\n"]]
+        output = format_output(self.uniq.exec(args))
+        self.assertEqual(output, ["AAA"])
+
+    def test_uniq_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        with self.assertRaises(TypeError):
+            self.uniq.exec(args)
+
+    def test_uniq_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+        ]
+        with self.assertRaises(ValueError):
+            self.uniq.exec(args)
+
+    def test_uniq_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.uniq.exec(args)
+
+    def test_unsafe_uniq_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        output = self.unsafe_uniq.exec(args)
+
+    def test_unsafe_uniq_wrong_arg_error(self):
+        args = [
+            "test_arg",
+            "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+        ]
+        output = self.unsafe_uniq.exec(args)
+
+    def test_unsafe_uniq_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        output = self.unsafe_uniq.exec(args)
 
 
 class TestSort(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.sort = Sort(False)
+        self.unsafe_sort = Sort(True)
 
     def test_sort(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
-        output = self.sort.exec(args)
-        self.assertEqual(output, ["AAA\n", "AAA\n", "BBB\n"])
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["AAA", "AAA", "BBB"])
+
+    def test_sort_r(self):
+        args = ["-r", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["BBB", "AAA", "AAA"])
+
+    def test_sort_stdin(self):
+        args = [["#STDIN#", "AAA\nAAA\nBBB\n"]]
+        output = format_output(self.sort.exec(args))
+        self.assertEqual(output, ["AAA", "AAA", "BBB"])
+
+    def test_sort_wrong_arg_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
+        with self.assertRaises(ValueError):
+            self.sort.exec(args)
+
+    def test_sort_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        with self.assertRaises(TypeError):
+            self.sort.exec(args)
+
+    def test_sort_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.sort.exec(args)
+
+    def test_unsafe_sort_wrong_arg_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
+        output = self.unsafe_sort.exec(args)
+
+    def test_unsafe_sort_extra_arg_error(self):
+        args = [
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "test_arg",
+            "test_arg",
+        ]
+        output = self.unsafe_sort.exec(args)
+
+    def test_unsafe_sort_file_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        output = self.unsafe_sort.exec(args)
 
 
 class TestCompleter(unittest.TestCase):
