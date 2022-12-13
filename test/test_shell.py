@@ -73,6 +73,7 @@ def format_output(output: List[str]) -> List[str]:
 
 class TestPwd(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.pwd = Pwd(False)
         self.unsafe_pwd = Pwd(True)
 
@@ -89,14 +90,39 @@ class TestPwd(unittest.TestCase):
 
 class TestCd(unittest.TestCase):
     def setUp(self) -> None:
-        self.Cd = Cd
+        os.chdir("/comp0010")
+        self.cd = Cd(False)
+        self.unsafe_cd = Cd(True)
 
-    def test_cd_dummy(self):
-        pass
+    def test_cd(self):
+        tmp = os.getcwd()
+        args = ["test"]
+        self.cd.exec(args)
+        self.assertEqual(os.getcwd(), "/comp0010/test")
+        os.chdir(tmp)
+
+    def test_cd_extra_arg_error(self):
+        args = ["test", "test_arg"]
+        with self.assertRaises(TypeError):
+            self.cd.exec(args)
+
+    def test_cd_directory_not_exists_error(self):
+        args = ["no_dir"]
+        with self.assertRaises(NotADirectoryError):
+            self.cd.exec(args)
+
+    def test_unsafe_cd_extra_arg_error(self):
+        args = ["test", "test_arg"]
+        output = self.unsafe_cd.exec(args)
+
+    def test_unsafe_cd_directory_not_exists_error(self):
+        args = ["no_dir"]
+        output = self.unsafe_cd.exec(args)
 
 
 class TestLs(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.ls = Ls(False)
         self.unsafe_ls = Ls(True)
 
@@ -160,6 +186,7 @@ class TestCat(unittest.TestCase):
 
 class TestEcho(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.echo = Echo(False)
         self.unsafe_echo = Echo(True)
 
@@ -176,6 +203,7 @@ class TestEcho(unittest.TestCase):
 
 class TestHead(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.head = Head(False)
         self.unsafe_head = Head(True)
 
@@ -242,6 +270,7 @@ class TestHead(unittest.TestCase):
 
 class TestTail(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.tail = Tail(False)
         self.unsafe_tail = Tail(True)
 
@@ -308,6 +337,7 @@ class TestTail(unittest.TestCase):
 
 class TestGrep(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.grep = Grep(False)
         self.unsafe_grep = Grep(True)
 
@@ -369,6 +399,7 @@ class TestGrep(unittest.TestCase):
 
 class TestCut(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.cut = Cut(False)
         self.unsafe_cut = Cut(True)
 
@@ -447,6 +478,7 @@ class TestCut(unittest.TestCase):
 
 class TestFind(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.find = Find(False)
         self.unsafe_find = Find(True)
 
@@ -508,6 +540,7 @@ class TestFind(unittest.TestCase):
 
 class TestUniq(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.uniq = Uniq(False)
         self.unsafe_uniq = Uniq(True)
 
@@ -580,6 +613,7 @@ class TestUniq(unittest.TestCase):
 
 class TestSort(unittest.TestCase):
     def setUp(self) -> None:
+        os.chdir("/comp0010")
         self.sort = Sort(False)
         self.unsafe_sort = Sort(True)
 
