@@ -130,6 +130,7 @@ def input_redirection(args: List[str]) -> List[str]:
         else:
             reformated_args.append(arg)
 
+
     if "<" in reformated_args:
         if reformated_args.count("<") != 1:
             raise TypeError(
