@@ -129,31 +129,31 @@ class TestLs(unittest.TestCase):
     def test_ls(self):
         args = []
         output = format_output(self.ls.exec(args))
-        self.assertEqual(
+        self.assertCountEqual(
             output,
             [
-                "README.md",
-                "tools",
-                "apps.svg",
                 "test",
-                "system_test",
+                "tools",
                 "requirements.txt",
-                "Dockerfile",
+                "apps.svg",
                 "sh",
+                "system_test",
+                "README.md",
                 "src",
+                "Dockerfile",
             ],
         )
 
     def test_ls_dir(self):
         args = ["/comp0010/test/test_dir/test_dir1/"]
         output = format_output(self.ls.exec(args))
-        self.assertEqual(
+        self.assertCountEqual(
             output,
             [
-                "test_file2.txt",
-                "test_file_long.txt",
                 "test_file1.txt",
+                "test_file2.txt",
                 "test_file_wide.txt",
+                "test_file_long.txt",
             ],
         )
 
@@ -518,26 +518,26 @@ class TestFind(unittest.TestCase):
         os.chdir("/comp0010/test/test_dir/test_dir1")
         output = format_output(self.find.exec(args))
         os.chdir(tmp)
-        self.assertEqual(
+        self.assertCountEqual(
             output,
             [
-                "./test_file2.txt",
-                "./test_file_long.txt",
                 "./test_file1.txt",
+                "./test_file2.txt",
                 "./test_file_wide.txt",
+                "./test_file_long.txt",
             ],
         )
 
     def test_find_noname(self):
         args = ["/comp0010/test/test_dir/test_dir1"]
         output = format_output(self.find.exec(args))
-        self.assertEqual(
+        self.assertCountEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
-                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
             ],
         )
 
@@ -549,13 +549,13 @@ class TestFind(unittest.TestCase):
     def test_find_subdirs(self):
         args = ["/comp0010/test/test_dir", "-name", "*.txt"]
         output = format_output(self.find.exec(args))
-        self.assertEqual(
+        self.assertCountEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
-                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
                 "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
                 "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
                 "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
             ],
@@ -564,7 +564,7 @@ class TestFind(unittest.TestCase):
     def test_find_dir_glob(self):
         args = ["/comp0010/test/test_dir/test_dir2", "-name", "*.txt"]
         output = format_output(self.find.exec(args))
-        self.assertEqual(
+        self.assertCountEqual(
             output,
             [
                 "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
