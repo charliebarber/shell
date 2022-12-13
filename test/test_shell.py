@@ -188,12 +188,17 @@ class TestCat(unittest.TestCase):
             "/comp0010/test/test_dir/test_dir1/test_file2.txt",
         ]
         output = format_output(self.cat.exec(args))
-        self.assertEqual(output, ["AAA", "BBB", "AAA", "CCC"])
+        self.assertEqual(output, ["AAA", "BBB", "AAACCC"])
 
     def test_cat_stdin(self):
         args = [["#STDIN#", "AAA\nBBB\nAAA"]]
         output = format_output(self.cat.exec(args))
         self.assertEqual(output, ["AAA", "BBB", "AAA"])
+
+    def test_cat_no_arg_error(self):
+        args = []
+        with self.assertRaises(TypeError):
+            self.cat.exec(args)
 
     def test_cat_file_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
@@ -202,6 +207,10 @@ class TestCat(unittest.TestCase):
 
     def test_unsafe_cat_file_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_cat.exec(args)
+
+    def test_unsafe_cat_no_arg_error(self):
+        args = []
         output = self.unsafe_cat.exec(args)
 
 
