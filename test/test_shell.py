@@ -101,10 +101,57 @@ class TestCd(unittest.TestCase):
 
 class TestLs(unittest.TestCase):
     def setUp(self) -> None:
-        self.Ls = Ls
+        self.ls = Ls(False)
+        self.unsafe_ls = Ls(True)
 
-    def test_ls_dummy(self):
-        pass
+    def test_ls(self):
+        args = []
+        output = format_output(self.ls.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "test",
+                "tools",
+                "requirements.txt",
+                "apps.svg",
+                "sh",
+                "system_test",
+                "README.md",
+                "src",
+                "Dockerfile",
+            ],
+        )
+
+    def test_ls_dir(self):
+        args = ["/comp0010/test/test_dir/test_dir1/"]
+        output = format_output(self.ls.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "test_file1.txt",
+                "test_file2.txt",
+                "test_file_wide.txt",
+                "test_file_long.txt",
+            ],
+        )
+
+    def test_ls_extra_arg_error(self):
+        args = ["test_arg", "test_arg"]
+        with self.assertRaises(TypeError):
+            self.ls.exec(args)
+
+    def test_ls_directory_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_no_dir/"]
+        with self.assertRaises(NotADirectoryError):
+            self.ls.exec(args)
+
+    def test_unsafe_ls_extra_arg_error(self):
+        args = ["test_arg", "test_arg"]
+        output = self.unsafe_ls.exec(args)
+
+    def test_unsafe_ls_directory_not_exists_error(self):
+        args = ["/comp0010/test/test_dir/test_no_dir/"]
+        output = self.unsafe_ls.exec(args)
 
 
 class TestCat(unittest.TestCase):
