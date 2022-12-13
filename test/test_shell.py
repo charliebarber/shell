@@ -222,13 +222,13 @@ class TestEcho(unittest.TestCase):
 
     def test_echo(self):
         args = ["Hello World!"]
-        output = self.echo.exec(args)
-        self.assertEqual(output, "Hello World!\n")
+        output = format_output(self.echo.exec(args))
+        self.assertEqual(output, ["Hello World!"])
 
     def test_echo_multi_arg(self):
         args = ["Hello", "World!"]
-        output = self.echo.exec(args)
-        self.assertEqual(output, "Hello World!\n")
+        output = format_output(self.echo.exec(args))
+        self.assertEqual(output, ["Hello World!"])
 
 
 class TestHead(unittest.TestCase):
