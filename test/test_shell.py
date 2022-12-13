@@ -516,39 +516,64 @@ class TestFind(unittest.TestCase):
         args = ["-name", "*.txt"]
         tmp = os.getcwd()
         os.chdir("/comp0010/test/test_dir/test_dir1")
-        output = self.find.exec(args)
+        output = format_output(self.find.exec(args))
         os.chdir(tmp)
-        self.assertEqual(output, ["./test_file2.txt\n", "./test_file1.txt\n"])
-
-    def test_find_dir_noname(self):
-        args = ["/comp0010/test/test_dir/test_dir1"]
-        output = self.find.exec(args)
         self.assertEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir1/test_file2.txt\n",
-                "/comp0010/test/test_dir/test_dir1/test_file1.txt\n",
+                "./test_file1.txt",
+                "./test_file2.txt",
+                "./test_file_wide.txt",
+                "./test_file_long.txt",
             ],
         )
 
-    def test_find_dir_name(self):
+    def test_find_noname(self):
+        args = ["/comp0010/test/test_dir/test_dir1"]
+        output = format_output(self.find.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+            ],
+        )
+
+    def test_find(self):
         args = ["/comp0010/test/test_dir/", "-name", "test_file1.txt"]
-        output = self.find.exec(args)
-        self.assertEqual(output, ["/comp0010/test/test_dir/test_dir1/test_file1.txt\n"])
+        output = format_output(self.find.exec(args))
+        self.assertEqual(output, ["/comp0010/test/test_dir/test_dir1/test_file1.txt"])
+
+    def test_find_subdirs(self):
+        args = ["/comp0010/test/test_dir", "-name", "*.txt"]
+        output = format_output(self.find.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
+            ],
+        )
 
     def test_find_dir_glob(self):
         args = ["/comp0010/test/test_dir/test_dir2", "-name", "*.txt"]
-        output = self.find.exec(args)
+        output = format_output(self.find.exec(args))
         self.assertEqual(
             output,
             [
-                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt\n",
-                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt\n",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
             ],
         )
 
-    def test_find_wrongdir_error(self):
-        args = ["/wrongdir", "-name", "*.txt"]
+    def test_find_no_dir_error(self):
+        args = ["/nodir", "-name", "*.txt"]
         with self.assertRaises(NotADirectoryError):
             self.find.exec(args)
 
@@ -557,15 +582,13 @@ class TestFind(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.find.exec(args)
 
-    def test_find_unsafe_wrongdir_error(self):
-        args = ["/wrongdir", "-name", "*.txt"]
+    def test_unsafe_find_no_dir_error(self):
+        args = ["/nodir", "-name", "*.txt"]
         output = self.unsafe_find.exec(args)
-        self.assertEqual(output, ["directory given does not exist\n"])
 
-    def test_find_unsafe_noname_error(self):
+    def test_unsafe_find_noname_error(self):
         args = ["/comp0010/test/test_dir", "-name"]
         output = self.unsafe_find.exec(args)
-        self.assertEqual(output, ["-name requires additional arguments\n"])
 
 
 class TestUniq(unittest.TestCase):
