@@ -110,6 +110,9 @@ class Cat(Application):
 
     def exec(self, args) -> List[str]:
         output = []
+        if len(args) == 0:
+            self.raise_error("No file specified", "type", output)
+            return output
         for a in args:
             if "#STDIN#" in a:
                 f = a[1:]
@@ -124,6 +127,7 @@ class Cat(Application):
                     with open(a) as f:
                         output.append(f.read())
 
+        output.append("\n")
         return output
 
 
