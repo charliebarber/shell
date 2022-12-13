@@ -326,10 +326,80 @@ class TestGrep(unittest.TestCase):
 
 class TestCut(unittest.TestCase):
     def setUp(self) -> None:
-        self.Cut = Cut
+        self.cut = Cut(False)
+        self.unsafe_cut = Cut(True)
 
-    def test_cut_dummy(self):
-        pass
+    def test_cut(self):
+        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["A", "B", "A"])
+
+    def test_cut_interval(self):
+        args = ["-b", "1-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_open_interval_right(self):
+        args = ["-b", "2-", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_open_interval_left(self):
+        args = ["-b", "-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_overlapping_interval(self):
+        args = ["-b", "3-6,4-9", "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["CDEFGHI"])
+
+    def test_cut_overlapping_bytes(self):
+        args = ["-b", "3-5,4", "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["CDE"])
+
+    def test_cut_overlapping_open_interval_right(self):
+        args = ["-b", "1-,2-", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AAA", "BBB", "AAA"])
+
+    def test_cut_overlapping_open_interval_left(self):
+        args = ["-b", "-1,-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["AA", "BB", "AA"])
+
+    def test_cut_stdin(self):
+        args = ["-b", "2", ["#STDIN#", "AAA\nBBB\nAAA"]]
+        output = format_output(self.cut.exec(args))
+        self.assertEqual(output, ["A", "B", "A"])
+
+    def test_cut_extra_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg", "test_arg"]
+        with self.assertRaises(TypeError):
+            self.cut.exec(args)
+
+    def test_cut_wrong_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg"]
+        with self.assertRaises(ValueError):
+            self.cut.exec(args)
+
+    def test_cut_file_not_exists_error(self):
+        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            self.cut.exec(args)
+
+    def test_unsafe_cut_extra_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg", "test_arg"]
+        output = self.unsafe_cut.exec(args)
+
+    def test_unsafe_cut_wrong_arg_error(self):
+        args = ["test_arg", "test_arg", "test_arg"]
+        output = self.unsafe_cut.exec(args)
+
+    def test_unsafe_cut_file_not_exists_error(self):
+        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = self.unsafe_cut.exec(args)
 
 
 class TestFind(unittest.TestCase):
@@ -343,22 +413,34 @@ class TestFind(unittest.TestCase):
         os.chdir("/comp0010/test/test_dir/test_dir1")
         output = self.find.exec(args)
         os.chdir(tmp)
-        self.assertEqual(output, ['./test_file2.txt\n', './test_file1.txt\n'])
-        
+        self.assertEqual(output, ["./test_file2.txt\n", "./test_file1.txt\n"])
+
     def test_find_dir_noname(self):
         args = ["/comp0010/test/test_dir/test_dir1"]
         output = self.find.exec(args)
-        self.assertEqual(output, ['/comp0010/test/test_dir/test_dir1/test_file2.txt\n', '/comp0010/test/test_dir/test_dir1/test_file1.txt\n'])
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt\n",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt\n",
+            ],
+        )
 
     def test_find_dir_name(self):
         args = ["/comp0010/test/test_dir/", "-name", "test_file1.txt"]
         output = self.find.exec(args)
-        self.assertEqual(output, ['/comp0010/test/test_dir/test_dir1/test_file1.txt\n'])
+        self.assertEqual(output, ["/comp0010/test/test_dir/test_dir1/test_file1.txt\n"])
 
     def test_find_dir_glob(self):
         args = ["/comp0010/test/test_dir/test_dir2", "-name", "*.txt"]
         output = self.find.exec(args)
-        self.assertEqual(output, ['/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt\n', '/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt\n'])
+        self.assertEqual(
+            output,
+            [
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt\n",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file4.txt\n",
+            ],
+        )
 
     def test_find_wrongdir_error(self):
         args = ["/wrongdir", "-name", "*.txt"]
