@@ -322,6 +322,7 @@ class Cut(Application):
                 self.raise_error(
                     f"No such file or directory: {file}", "file_not_found", output
                 )
+                return output
             else:
                 with open(file) as f:
                     lines = f.readlines()
@@ -409,7 +410,7 @@ class Find(Application):
             elif args[0] == "-name":
                 for file in files:
                     output.append("." + file[initPathLength:] + "\n")
-        
+
         return output
 
 
