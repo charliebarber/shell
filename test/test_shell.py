@@ -793,14 +793,6 @@ class TestSort(unittest.TestCase):
         )
 
 
-class TestCompleter(unittest.TestCase):
-    def setUp(self) -> None:
-        pass
-
-    def test_autocomplete_dummy(self):
-        pass
-
-
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
         os.chdir("/comp0010")
