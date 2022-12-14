@@ -58,9 +58,17 @@ class Cd(Application):
     def exec(self, args) -> List[str]:
         output = []
         if len(args) == 0 or len(args) > 1:
-            self.raise_error("Wrong number of command line arguments", "type", output)
+            self.raise_error(
+                    "Wrong number of command line arguments",
+                    "type",
+                    output
+                )
         if not os.path.exists(args[0]):
-            self.raise_error(f"No such directory: {args[0]}", "not_directory", output)
+            self.raise_error(
+                    f"No such directory: {args[0]}",
+                    "not_directory",
+                    output
+                )
         else:
             os.chdir(args[0])
 

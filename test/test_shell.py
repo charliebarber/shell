@@ -181,7 +181,10 @@ class TestLs(unittest.TestCase):
         output = format_output(self.unsafe_ls.exec(args))
         self.assertEqual(
             output,
-            ["Wrong number of command line arguments", "No such directory: test_arg"],
+            [
+                "Wrong number of command line arguments",
+                "No such directory: test_arg"
+            ],
         )
 
     def test_unsafe_ls_directory_not_exists_error(self):
@@ -227,7 +230,8 @@ class TestCat(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+                ("No such file or directory: "
+                 "comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -266,12 +270,20 @@ class TestHead(unittest.TestCase):
         self.assertEqual(output, [str(i) for i in range(1, 11)])
 
     def test_head_0(self):
-        args = ["-n", "0", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "-n",
+                "0",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         output = format_output(self.head.exec(args))
         self.assertEqual(output, [])
 
     def test_head_5(self):
-        args = ["-n", "5", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "-n",
+                "5",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         output = format_output(self.head.exec(args))
         self.assertEqual(output, [str(i) for i in range(1, 6)])
 
@@ -281,12 +293,19 @@ class TestHead(unittest.TestCase):
         self.assertEqual(output, [str(i) for i in range(1, 11)])
 
     def test_head_stdin_5(self):
-        args = ["-n", "5", ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        args = [
+                "-n",
+                "5",
+                ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]
+            ]
         output = format_output(self.head.exec(args))
         self.assertEqual(output, [str(i) for i in range(1, 6)])
 
     def test_head_extra_arg_error(self):
-        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "test_arg",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         with self.assertRaises(TypeError):
             self.head.exec(args)
 
@@ -305,7 +324,10 @@ class TestHead(unittest.TestCase):
             self.head.exec(args)
 
     def test_unsafe_head_extra_arg_error(self):
-        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "test_arg",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         output = format_output(self.unsafe_head.exec(args))
         self.assertEqual(output, ["Wrong number of command line arguments"])
 
@@ -324,7 +346,8 @@ class TestHead(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+                ("No such file or directory:"
+                 "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -341,12 +364,20 @@ class TestTail(unittest.TestCase):
         self.assertEqual(output, [str(i) for i in range(6, 16)])
 
     def test_tail_0(self):
-        args = ["-n", "0", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "-n",
+                "0",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         output = format_output(self.tail.exec(args))
         self.assertEqual(output, [])
 
     def test_tail_5(self):
-        args = ["-n", "5", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "-n",
+                "5",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         output = format_output(self.tail.exec(args))
         self.assertEqual(output, [str(i) for i in range(11, 16)])
 
@@ -356,12 +387,19 @@ class TestTail(unittest.TestCase):
         self.assertEqual(output, [str(i) for i in range(2, 13)])
 
     def test_tail_stdin_5(self):
-        args = ["-n", "5", ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]]
+        args = [
+                "-n",
+                "5",
+                ["#STDIN#", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"]
+            ]
         output = format_output(self.tail.exec(args))
         self.assertEqual(output, [str(i) for i in range(7, 13)])
 
     def test_tail_extra_arg_error(self):
-        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "test_arg",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         with self.assertRaises(TypeError):
             self.tail.exec(args)
 
@@ -380,7 +418,10 @@ class TestTail(unittest.TestCase):
             self.tail.exec(args)
 
     def test_unsafe_tail_extra_arg_error(self):
-        args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
+        args = [
+                "test_arg",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt"
+            ]
         output = format_output(self.unsafe_tail.exec(args))
         self.assertEqual(output, ["Wrong number of command line arguments"])
 
@@ -399,7 +440,8 @@ class TestTail(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+                ("No such file or directory: "
+                 "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -468,7 +510,8 @@ class TestGrep(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+                ("No such file or directory: "
+                 "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -480,12 +523,20 @@ class TestCut(unittest.TestCase):
         self.unsafe_cut = Cut(True)
 
     def test_cut(self):
-        args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        args = [
+                "-b",
+                "1",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt"
+            ]
         output = format_output(self.cut.exec(args))
         self.assertEqual(output, ["A", "B", "A"])
 
     def test_cut_interval(self):
-        args = ["-b", "1-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        args = [
+                "-b",
+                "1-2",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt"
+            ]
         output = format_output(self.cut.exec(args))
         self.assertEqual(output, ["AA", "BB", "AA"])
 
@@ -500,22 +551,38 @@ class TestCut(unittest.TestCase):
         self.assertEqual(output, ["AA", "BB", "AA"])
 
     def test_cut_overlapping_interval(self):
-        args = ["-b", "3-6,4-9", "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"]
+        args = [
+                "-b",
+                "3-6,4-9",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"
+            ]
         output = format_output(self.cut.exec(args))
         self.assertEqual(output, ["CDEFGHI"])
 
     def test_cut_overlapping_bytes(self):
-        args = ["-b", "3-5,4", "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"]
+        args = [
+                "-b",
+                "3-5,4",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt"
+            ]
         output = format_output(self.cut.exec(args))
         self.assertEqual(output, ["CDE"])
 
     def test_cut_overlapping_open_interval_right(self):
-        args = ["-b", "1-,2-", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        args = [
+                "-b",
+                "1-,2-",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt"
+            ]
         output = format_output(self.cut.exec(args))
         self.assertEqual(output, ["AAA", "BBB", "AAA"])
 
     def test_cut_overlapping_open_interval_left(self):
-        args = ["-b", "-1,-2", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        args = [
+                "-b",
+                "-1,-2",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt"
+            ]
         output = format_output(self.cut.exec(args))
         self.assertEqual(output, ["AA", "BB", "AA"])
 
@@ -555,7 +622,8 @@ class TestCut(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+                ("No such file or directory: "
+                 "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -598,7 +666,10 @@ class TestFind(unittest.TestCase):
     def test_find(self):
         args = ["/comp0010/test/test_dir/", "-name", "test_file1.txt"]
         output = format_output(self.find.exec(args))
-        self.assertEqual(output, ["/comp0010/test/test_dir/test_dir1/test_file1.txt"])
+        self.assertEqual(
+            output,
+            ["/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+            )
 
     def test_find_subdirs(self):
         args = ["/comp0010/test/test_dir", "-name", "*.txt"]
@@ -664,7 +735,10 @@ class TestUniq(unittest.TestCase):
         self.assertEqual(output, ["AAA", "BBB", "CCC", "BBB", "AAA"])
 
     def test_uniq_i(self):
-        args = ["-i", "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"]
+        args = [
+                "-i",
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt"
+            ]
         output = format_output(self.uniq.exec(args))
         self.assertEqual(output, ["AAA"])
 
@@ -696,7 +770,9 @@ class TestUniq(unittest.TestCase):
             self.uniq.exec(args)
 
     def test_uniq_file_not_exists_error(self):
-        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        args = [
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"
+            ]
         with self.assertRaises(FileNotFoundError):
             self.uniq.exec(args)
 
@@ -718,12 +794,16 @@ class TestUniq(unittest.TestCase):
         self.assertEqual(output, ["Wrong flags"])
 
     def test_unsafe_uniq_file_not_exists_error(self):
-        args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
+        args = [
+                "/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"
+            ]
         output = format_output(self.unsafe_uniq.exec(args))
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"
+                ("No such file or directory: "
+                 "/comp0010/test/test_dir/test_dir2/test_subdir/"
+                 "test_nofile.txt")
             ],
         )
 
@@ -788,7 +868,8 @@ class TestSort(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+                ("No such file or directory: "
+                 "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -831,7 +912,9 @@ class TestParsing(unittest.TestCase):
 
     def test_seperate_pipes(self):
         expected = ["cat articles/text1.txt ", ' grep "Interesting String"']
-        output = seperate_pipes('cat articles/text1.txt | grep "Interesting String"')
+        output = seperate_pipes(
+                'cat articles/text1.txt | grep "Interesting String"'
+            )
         self.assertEqual(output, expected)
 
     def test_eval_substitution(self):
@@ -927,7 +1010,11 @@ class TestInputRedirection(unittest.TestCase):
 
     def test_input_redirection(self):
         output = input_redirection(
-            ["test_arg", "<", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+            [
+                "test_arg",
+                "<",
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt"
+            ]
         )
         self.assertEqual(output, ["test_arg", ["#STDIN#", "AAA\nBBB\nAAA"]])
 
@@ -949,7 +1036,8 @@ class TestInputRedirection(unittest.TestCase):
 
     def test_input_redirection_no_space_multiple_file_error(self):
         args = [
-            "</comp0010/test/test_dir/test_dir1/test_file1.txt</comp0010/test/test_dir/test_dir1/test_file2.txt",
+            ("</comp0010/test/test_dir/test_dir1/test_file1.txt"
+             "</comp0010/test/test_dir/test_dir1/test_file2.txt")
         ]
         with self.assertRaises(TypeError):
             input_redirection(args)
