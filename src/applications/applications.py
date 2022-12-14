@@ -127,7 +127,8 @@ class Cat(Application):
                     with open(a) as f:
                         output.append(f.read())
 
-        output.append("\n")
+        if output[-1][-2:] != "\n":
+            output.append("\n")
         return output
 
 
@@ -395,7 +396,9 @@ class Find(Application):
         if args[0] == "-name":
             path = os.getcwd()
         if args[0] != "-name" and not os.path.exists(args[0]):
-            self.raise_error("directory given does not exist", "not_directory", output)
+            self.raise_error(
+                f"Directory given does not exist: {args[0]}", "not_directory", output
+            )
             return output
         if "-name" not in args:
             recursive_find(path)

@@ -1,5 +1,4 @@
 import os
-from pyclbr import Function
 import unittest
 
 from shell import (
@@ -121,11 +120,13 @@ class TestCd(unittest.TestCase):
 
     def test_unsafe_cd_extra_arg_error(self):
         args = ["test", "test_arg"]
-        output = self.unsafe_cd.exec(args)
+        output = format_output(self.unsafe_cd.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_cd_directory_not_exists_error(self):
         args = ["no_dir"]
-        output = self.unsafe_cd.exec(args)
+        output = format_output(self.unsafe_cd.exec(args))
+        self.assertEqual(output, ["No such directory: no_dir"])
 
 
 class TestLs(unittest.TestCase):
@@ -177,11 +178,18 @@ class TestLs(unittest.TestCase):
 
     def test_unsafe_ls_extra_arg_error(self):
         args = ["test_arg", "test_arg"]
-        output = self.unsafe_ls.exec(args)
+        output = format_output(self.unsafe_ls.exec(args))
+        self.assertEqual(
+            output,
+            ["Wrong number of command line arguments", "No such directory: test_arg"],
+        )
 
     def test_unsafe_ls_directory_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_no_dir/"]
-        output = self.unsafe_ls.exec(args)
+        output = format_output(self.unsafe_ls.exec(args))
+        self.assertEqual(
+            output, ["No such directory: /comp0010/test/test_dir/test_no_dir/"]
+        )
 
 
 class TestCat(unittest.TestCase):
@@ -215,11 +223,18 @@ class TestCat(unittest.TestCase):
 
     def test_unsafe_cat_file_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
-        output = self.unsafe_cat.exec(args)
+        output = format_output(self.unsafe_cat.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+            ],
+        )
 
     def test_unsafe_cat_no_arg_error(self):
         args = []
-        output = self.unsafe_cat.exec(args)
+        output = format_output(self.unsafe_cat.exec(args))
+        self.assertEqual(output, ["No file specified"])
 
 
 class TestEcho(unittest.TestCase):
@@ -291,7 +306,8 @@ class TestHead(unittest.TestCase):
 
     def test_unsafe_head_extra_arg_error(self):
         args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
-        output = self.unsafe_head.exec(args)
+        output = format_output(self.unsafe_head.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_head_wrong_arg_error(self):
         args = [
@@ -299,11 +315,18 @@ class TestHead(unittest.TestCase):
             "test_arg",
             "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
         ]
-        output = self.unsafe_head.exec(args)
+        output = format_output(self.unsafe_head.exec(args))
+        self.assertEqual(output, ["Wrong flags"])
 
     def test_unsafe_head_file_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
-        output = self.unsafe_head.exec(args)
+        output = format_output(self.unsafe_head.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+            ],
+        )
 
 
 class TestTail(unittest.TestCase):
@@ -358,7 +381,8 @@ class TestTail(unittest.TestCase):
 
     def test_unsafe_tail_extra_arg_error(self):
         args = ["test_arg", "/comp0010/test/test_dir/test_dir1/test_file_long.txt"]
-        output = self.unsafe_tail.exec(args)
+        output = format_output(self.unsafe_tail.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_tail_wrong_arg_error(self):
         args = [
@@ -366,11 +390,18 @@ class TestTail(unittest.TestCase):
             "test_arg",
             "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
         ]
-        output = self.unsafe_tail.exec(args)
+        output = format_output(self.unsafe_tail.exec(args))
+        self.assertEqual(output, ["Wrong flags"])
 
     def test_unsafe_tail_file_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
-        output = self.unsafe_tail.exec(args)
+        output = format_output(self.unsafe_tail.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+            ],
+        )
 
 
 class TestGrep(unittest.TestCase):
@@ -428,11 +459,18 @@ class TestGrep(unittest.TestCase):
 
     def test_unsafe_grep_too_few_arg_error(self):
         args = ["test_arg"]
-        output = self.unsafe_grep.exec(args)
+        output = format_output(self.unsafe_grep.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_grep_file_not_exists_error(self):
         args = ["AAA", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
-        output = self.unsafe_grep.exec(args)
+        output = format_output(self.unsafe_grep.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+            ],
+        )
 
 
 class TestCut(unittest.TestCase):
@@ -503,15 +541,23 @@ class TestCut(unittest.TestCase):
 
     def test_unsafe_cut_extra_arg_error(self):
         args = ["test_arg", "test_arg", "test_arg", "test_arg"]
-        output = self.unsafe_cut.exec(args)
+        output = format_output(self.unsafe_cut.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_cut_wrong_arg_error(self):
         args = ["test_arg", "test_arg", "test_arg"]
-        output = self.unsafe_cut.exec(args)
+        output = format_output(self.unsafe_cut.exec(args))
+        self.assertEqual(output, ["Wrong flags"])
 
     def test_unsafe_cut_file_not_exists_error(self):
         args = ["-b", "1", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
-        output = self.unsafe_cut.exec(args)
+        output = format_output(self.unsafe_cut.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+            ],
+        )
 
 
 class TestFind(unittest.TestCase):
@@ -660,18 +706,26 @@ class TestUniq(unittest.TestCase):
             "test_arg",
             "test_arg",
         ]
-        output = self.unsafe_uniq.exec(args)
+        output = format_output(self.unsafe_uniq.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_uniq_wrong_arg_error(self):
         args = [
             "test_arg",
             "/comp0010/test/test_dir/test_dir2/test_subdir/test_file3.txt",
         ]
-        output = self.unsafe_uniq.exec(args)
+        output = format_output(self.unsafe_uniq.exec(args))
+        self.assertEqual(output, ["Wrong flags"])
 
     def test_unsafe_uniq_file_not_exists_error(self):
         args = ["/comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"]
-        output = self.unsafe_uniq.exec(args)
+        output = format_output(self.unsafe_uniq.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir2/test_subdir/test_nofile.txt"
+            ],
+        )
 
 
 class TestSort(unittest.TestCase):
@@ -710,13 +764,14 @@ class TestSort(unittest.TestCase):
             self.sort.exec(args)
 
     def test_sort_file_not_exists_error(self):
-        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
         with self.assertRaises(FileNotFoundError):
             self.sort.exec(args)
 
     def test_unsafe_sort_wrong_arg_error(self):
         args = ["/comp0010/test/test_dir/test_dir1/test_file1.txt", "test_arg"]
-        output = self.unsafe_sort.exec(args)
+        output = format_output(self.unsafe_sort.exec(args))
+        self.assertEqual(output, ["Wrong flags"])
 
     def test_unsafe_sort_extra_arg_error(self):
         args = [
@@ -724,11 +779,18 @@ class TestSort(unittest.TestCase):
             "test_arg",
             "test_arg",
         ]
-        output = self.unsafe_sort.exec(args)
+        output = format_output(self.unsafe_sort.exec(args))
+        self.assertEqual(output, ["Wrong number of command line arguments"])
 
     def test_unsafe_sort_file_not_exists_error(self):
-        args = ["/comp0010/test/test_dir/test_dir1/test_file3.txt"]
-        output = self.unsafe_sort.exec(args)
+        args = ["/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        output = format_output(self.unsafe_sort.exec(args))
+        self.assertEqual(
+            output,
+            [
+                "No such file or directory: /comp0010/test/test_dir/test_dir1/test_nofile.txt"
+            ],
+        )
 
 
 class TestSubstitution(unittest.TestCase):
