@@ -45,13 +45,6 @@ class TestFunction(unittest.TestCase):
     def test_function_property3(self):
         pass
 """
-# Believe this can be removed
-# class TestShell(unittest.TestCase):
-#     def test_shell(self):
-#         out = deque()
-#         eval("echo foo", out)
-#         self.assertEqual(out.popleft(), "foo\n")
-#         self.assertEqual(len(out), 0)
 
 
 """HELPER FUNCTIONS"""
@@ -231,7 +224,7 @@ class TestCat(unittest.TestCase):
             output,
             [
                 ("No such file or directory: "
-                 "comp0010/test/test_dir/test_dir1/test_nofile.txt")
+                 "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
 
@@ -346,7 +339,7 @@ class TestHead(unittest.TestCase):
         self.assertEqual(
             output,
             [
-                ("No such file or directory:"
+                ("No such file or directory: "
                  "/comp0010/test/test_dir/test_dir1/test_nofile.txt")
             ],
         )
@@ -710,7 +703,7 @@ class TestFind(unittest.TestCase):
     def test_unsafe_find_no_dir_error(self):
         args = ["/nodir", "-name", "*.txt"]
         output = format_output(self.unsafe_find.exec(args))
-        self.assertEqual(output, ["directory given does not exist"])
+        self.assertEqual(output, ["Directory given does not exist: /nodir"])
 
     def test_unsafe_find_noname_error(self):
         args = ["/comp0010/test/test_dir", "-name"]
@@ -990,13 +983,13 @@ class TestParsing(unittest.TestCase):
         expected = (
             "cat",
             [
-                '/comp0010/test/test_dir/test_dir1/test_file_wide.txt',
-                '/comp0010/test/test_dir/test_dir1/test_file2.txt',
-                '/comp0010/test/test_dir/test_dir1/test_file1.txt',
-                '/comp0010/test/test_dir/test_dir1/test_file_long.txt'
+                "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_wide.txt",
+                "/comp0010/test/test_dir/test_dir1/test_file_long.txt",
             ])
         output = eval_cmd("cat /comp0010/test/test_dir/test_dir1/*.txt")
-        self.assertEqual(output, expected)
+        self.assertCountEqual(output, expected)
 
     def test_eval_cmd_quote_groups(self):
         expected = ("grep", ['...', 'dir1/file1.txt', 'dir1/file2.txt'])
