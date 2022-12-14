@@ -32,7 +32,7 @@ from applications.applications import (
 """
 class TestFunction(unittest.TestCase):
     def setUp(self) -> None:
-        # instantiate the test class with the required function 
+        # instantiate the test class with the required function
         # rather than passing it through the parser
         self.Func = Func
 
