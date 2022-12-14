@@ -23,7 +23,7 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
         # If matches command splitting regex, get rid of double quotes
         if re.search(r"(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
             tokens.append(m.group(0).replace('"', ""))
-        elif m.group(7) or m.group(7):
+        elif m.group(6) or m.group(7):
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
         else:
