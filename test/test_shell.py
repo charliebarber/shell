@@ -992,7 +992,7 @@ class TestParsing(unittest.TestCase):
         self.assertCountEqual(output, expected)
 
     def test_eval_cmd_quote_groups(self):
-        expected = ("grep", ['...', 'dir1/file1.txt', 'dir1/file2.txt'])
+        expected = ("grep", ["...", "dir1/file1.txt", "dir1/file2.txt"])
         output = eval_cmd("grep '...' dir1/file1.txt dir1/file2.txt")
         self.assertEqual(output, expected)
 
