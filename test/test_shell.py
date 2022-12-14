@@ -2,7 +2,15 @@ import os
 from pyclbr import Function
 import unittest
 
-from shell import eval
+from shell import (
+    eval,
+    eval_cmd,
+    eval_substitution,
+    get_sequence,
+    input_redirection,
+    run_cmd,
+    seperate_pipes,
+)
 from collections import deque
 from typing import List
 
@@ -729,17 +737,9 @@ class TestCompleter(unittest.TestCase):
         pass
 
 
-class TestParser(unittest.TestCase):
-    def setUp(self) -> None:
-        pass
-
-    def test_parser_dummy(self):
-        pass
-
-
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
-        pass
+        os.chdir("/comp0010")
 
     def test_simple_substitution(self):
         output = get_output("echo `echo test`")
@@ -760,6 +760,144 @@ class TestSubstitution(unittest.TestCase):
     def test_dquotes_substitution(self):
         output = get_output('echo "`echo test`"')
         self.assertEqual(output, "test\n")
+
+
+class TestParsing(unittest.TestCase):
+    def setUp(self) -> None:
+        os.chdir("/comp0010")
+
+    def test_get_sequence(self):
+        expected = deque()
+        expected.append("echo hello")
+        expected.append("echo world")
+        output = get_sequence("echo hello; echo world")
+        self.assertEqual(output, expected)
+
+    def test_seperate_pipes(self):
+        expected = ["cat articles/text1.txt ", ' grep "Interesting String"']
+        output = seperate_pipes('cat articles/text1.txt | grep "Interesting String"')
+        self.assertEqual(output, expected)
+
+    def test_eval_substitution(self):
+        expected = "echo test"
+        output = eval_substitution("echo `echo test`")
+        self.assertEqual(output, expected)
+
+    def test_run_cmd(self):
+        expected = deque()
+        for c in "test\n":
+            expected.append(c)
+        output = run_cmd("echo test", deque())
+        self.assertEqual(output, expected)
+
+    def test_run_cmd_stdin(self):
+        expected = deque()
+        for c in "hello world\n":
+            expected.append(c)
+        output = run_cmd("echo", deque(), ["hello", "world"])
+        self.assertEqual(output, expected)
+
+    def test_eval(self):
+        expected = deque()
+        for c in "test\n":
+            expected.append(c)
+        output = eval("echo test")
+        self.assertEqual(output, expected)
+
+    def test_eval_seq(self):
+        expected = deque()
+        for c in "hello\nworld\n":
+            expected.append(c)
+        output = eval("echo hello; echo world")
+        self.assertEqual(output, expected)
+
+    def test_eval_pipe(self):
+        expected = deque(["test\n"])
+        output = eval("echo test | cat")
+        self.assertEqual(output, expected)
+
+    def test_eval_pipe_for_loop(self):
+        expected = deque(["test\n"])
+        output = eval("echo test | cat | cat | cat")
+        self.assertEqual(output, expected)
+
+    def test_eval_cmd(self):
+        expected = ("echo", ["hello", "world"])
+        output = eval_cmd("echo hello world")
+        self.assertEqual(expected, output)
+
+    def test_eval_cmd_quoted(self):
+        expected = ("echo", ["hello world"])
+        output = eval_cmd('echo "hello world"')
+        self.assertEqual(expected, output)
+
+    def test_eval_cmd_splitting(self):
+        expected = ("echo", ["abc"])
+        output = eval_cmd('echo a"b"c')
+        self.assertEqual(expected, output)
+
+    def test_output_redirection(self):
+        run_cmd(
+            "echo",
+            deque(),
+            ["abc", ">", "/comp0010/test/test_dir/test_dir1/newfile.txt"],
+        )
+        with open("/comp0010/test/test_dir/test_dir1/newfile.txt") as f:
+            lines = f.readlines()
+        self.assertEqual(["abc\n"], lines)
+
+    # TODO
+    def test_eval_cmd_globbing(self):
+        pass
+
+
+class TestInputRedirection(unittest.TestCase):
+    def setUp(self) -> None:
+        os.chdir("/comp0010")
+
+    def test_input_redirection(self):
+        output = input_redirection(
+            ["test_arg", "<", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        )
+        self.assertEqual(output, ["test_arg", ["#STDIN#", "AAA\nBBB\nAAA"]])
+
+    def test_input_redirection_no_space(self):
+        output = input_redirection(
+            ["test_arg", "</comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        )
+        self.assertEqual(output, ["test_arg", ["#STDIN#", "AAA\nBBB\nAAA"]])
+
+    def test_input_redirection_multiple_file_error(self):
+        args = [
+            "<",
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "<",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        with self.assertRaises(TypeError):
+            input_redirection(args)
+
+    def test_input_redirection_no_space_multiple_file_error(self):
+        args = [
+            "</comp0010/test/test_dir/test_dir1/test_file1.txt</comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        with self.assertRaises(TypeError):
+            input_redirection(args)
+
+    def test_input_redirection_file_not_extists(self):
+        args = ["<", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            input_redirection(args)
+
+    def test_input_redirection_infront(self):
+        expected = ("cat", ["dir1/file2.txt"])
+        output = eval_cmd("< dir1/file2.txt cat")
+        self.assertEqual(expected, output)
+
+    def test_input_redirection_infront_no_space(self):
+        expected = ("cat", ["dir1/file1.txt"])
+        output = eval_cmd("<dir1/file1.txt cat")
+        self.assertEqual(expected, output)
 
 
 if __name__ == "__main__":
