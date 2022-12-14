@@ -95,7 +95,10 @@ def get_sequence(command: str) -> deque:
 
     q = deque()
     # Finds all commands seperated by semicolons
-    for m in re.split(r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))', command):
+    for m in re.split(
+                r'; (?=(?:"[^"]*?(?: [^"]*)*))|; (?=[^",]+(?:;|$))',
+                command
+            ):
         q.append(m)
 
     return q
@@ -124,7 +127,9 @@ def input_redirection(args: List[str]) -> List[str]:
         if "<" in arg and arg != "<":
             split = list(filter(None, arg.split("<")))
             if len(split) > 1:
-                raise TypeError("Several files are specified for input redirection")
+                raise TypeError(
+                        "Several files are specified for input redirection"
+                    )
             for item in split:
                 reformated_args.append("<")
                 reformated_args.append(item)
@@ -133,11 +138,15 @@ def input_redirection(args: List[str]) -> List[str]:
 
     if "<" in reformated_args:
         if reformated_args.count("<") != 1:
-            raise TypeError("Several files are specified for input redirection")
+            raise TypeError(
+                    "Several files are specified for input redirection"
+                )
         else:
             filename = reformated_args[reformated_args.index("<") + 1]
             if not os.path.exists(filename):
-                raise FileNotFoundError("File for input redirection does not exist")
+                raise FileNotFoundError(
+                        "File for input redirection does not exist"
+                    )
             with open(filename, "r") as file:
                 data = file.read()
             reformated_args = reformated_args[: reformated_args.index("<")]
@@ -159,8 +168,8 @@ def eval_substitution(cmdline: str) -> str:
         sub_end = cmdline.find("`", sub_start + 1)
         # If matching backquote exists
         if sub_end != -1:
-            sub_cmd = cmdline[sub_start + 1 : sub_end]
-            quoted_sub_cmd = cmdline[sub_start : sub_end + 1]
+            sub_cmd = cmdline[sub_start + 1:sub_end]
+            quoted_sub_cmd = cmdline[sub_start:sub_end + 1]
             sub_queue = get_sequence(sub_cmd)
             output = ""
             while sub_queue:
