@@ -639,7 +639,7 @@ class TestFind(unittest.TestCase):
     def test_unsafe_find_no_dir_error(self):
         args = ["/nodir", "-name", "*.txt"]
         output = format_output(self.unsafe_find.exec(args))
-        self.assertEqual(output, ["Directory given does not exist: /nodir"])
+        self.assertEqual(output, ["directory given does not exist"])
 
     def test_unsafe_find_noname_error(self):
         args = ["/comp0010/test/test_dir", "-name"]
