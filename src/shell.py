@@ -16,10 +16,13 @@ def eval_cmd(command: str) -> Tuple[str, List[str]]:
     """
 
     tokens = []
-    for m in re.finditer(r"(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'", command):
+    for m in re.finditer(
+        r"(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))|[^\s\"']+|\"([^\"]*)\"|'([^']*)'",
+        command,
+    ):
         # If matches command splitting regex, get rid of double quotes
         if re.search(r"(([^\"\s]*)(\"([^\"]*)\")([^\"\s]*))", m.group(0)):
-            tokens.append(m.group(0).replace('"', ''))
+            tokens.append(m.group(0).replace('"', ""))
         elif m.group(7) or m.group(7):
             quoted = m.group(0)
             tokens.append(quoted[1:-1])
@@ -121,9 +124,7 @@ def input_redirection(args: List[str]) -> List[str]:
         if "<" in arg and arg != "<":
             split = list(filter(None, arg.split("<")))
             if len(split) > 1:
-                raise TypeError(
-                    "Several files are specified for input redirection"
-                    )
+                raise TypeError("Several files are specified for input redirection")
             for item in split:
                 reformated_args.append("<")
                 reformated_args.append(item)
@@ -132,15 +133,11 @@ def input_redirection(args: List[str]) -> List[str]:
 
     if "<" in reformated_args:
         if reformated_args.count("<") != 1:
-            raise TypeError(
-                "Several files are specified for input redirection"
-                )
+            raise TypeError("Several files are specified for input redirection")
         else:
             filename = reformated_args[reformated_args.index("<") + 1]
             if not os.path.exists(filename):
-                raise FileNotFoundError(
-                    "File for input redirection does not exist"
-                    )
+                raise FileNotFoundError("File for input redirection does not exist")
             with open(filename, "r") as file:
                 data = file.read()
             reformated_args = reformated_args[: reformated_args.index("<")]
@@ -162,8 +159,8 @@ def eval_substitution(cmdline: str) -> str:
         sub_end = cmdline.find("`", sub_start + 1)
         # If matching backquote exists
         if sub_end != -1:
-            sub_cmd = cmdline[sub_start + 1:sub_end]
-            quoted_sub_cmd = cmdline[sub_start:sub_end + 1]
+            sub_cmd = cmdline[sub_start + 1 : sub_end]
+            quoted_sub_cmd = cmdline[sub_start : sub_end + 1]
             sub_queue = get_sequence(sub_cmd)
             output = ""
             while sub_queue:
@@ -171,7 +168,7 @@ def eval_substitution(cmdline: str) -> str:
                     output += " " + "".join(run_cmd(sub_queue.popleft(), []))
                 else:
                     output = "".join(run_cmd(sub_queue.popleft(), []))
-                output = output.replace("\n", '')
+                output = output.replace("\n", "")
             cmdline = cmdline.replace(quoted_sub_cmd, output)
 
     return cmdline
@@ -220,7 +217,7 @@ def eval(cmdline: str) -> deque:
                 # Append the previous output to the new commands args
                 args.append(prev_out)
 
-            run_cmd(app, out, args)
+            app_outputs = run_cmd(app, out, args)
         else:
             app_outputs = run_cmd(command, out)
 

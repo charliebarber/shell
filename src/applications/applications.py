@@ -127,7 +127,8 @@ class Cat(Application):
                     with open(a) as f:
                         output.append(f.read())
 
-        output.append("\n")
+        if output[0][-2:] != "\n":
+            output.append("\n")
         return output
 
 
