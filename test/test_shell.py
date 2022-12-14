@@ -2,7 +2,7 @@ import os
 from pyclbr import Function
 import unittest
 
-from shell import eval
+from shell import eval, complete
 from collections import deque
 from typing import List
 
@@ -725,8 +725,10 @@ class TestCompleter(unittest.TestCase):
     def setUp(self) -> None:
         pass
 
-    def test_autocomplete_dummy(self):
-        pass
+    def test_completer_dummy(self):
+        text = "cd test_d"
+        output = complete(text, 0)
+        self.assertEqual(output, "ir")
 
 
 class TestParser(unittest.TestCase):
