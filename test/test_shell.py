@@ -297,14 +297,6 @@ class TestCompleter(unittest.TestCase):
         pass
 
 
-class TestParser(unittest.TestCase):
-    def setUp(self) -> None:
-        pass
-
-    def test_parser_dummy(self):
-        pass
-
-
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
         pass
