@@ -299,7 +299,7 @@ class TestCompleter(unittest.TestCase):
 
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
-        pass
+        os.chdir("/comp0010")
 
     def test_simple_substitution(self):
         output = get_output("echo `echo test`")
@@ -324,7 +324,7 @@ class TestSubstitution(unittest.TestCase):
 
 class TestParsing(unittest.TestCase):
     def setUp(self) -> None:
-        pass
+        os.chdir("/comp0010")
 
     def test_get_sequence(self):
         expected = deque()
@@ -396,15 +396,15 @@ class TestParsing(unittest.TestCase):
         output = eval_cmd('echo a"b"c')
         self.assertEqual(expected, output)
 
-    def test_eval_cmd_input_redir_infront(self):
-        expected = ("cat", ["dir1/file2.txt"])
-        output = eval_cmd("< dir1/file2.txt cat")
-        self.assertEqual(expected, output)
-
-    def test_eval_cmd_input_redir_infront_nospace(self):
-        expected = ("cat", ["dir1/file2.txt"])
-        output = eval_cmd("<dir1/file2.txt cat")
-        self.assertEqual(expected, output)
+    def test_output_redirection(self):
+        run_cmd(
+            "echo",
+            deque(),
+            ["abc", ">", "/comp0010/test/test_dir/test_dir1/newfile.txt"],
+        )
+        with open("/comp0010/test/test_dir/test_dir1/newfile.txt") as f:
+            lines = f.readlines()
+        self.assertEqual(["abc\n"], lines)
 
     # TODO
     def test_eval_cmd_globbing(self):
@@ -413,7 +413,7 @@ class TestParsing(unittest.TestCase):
 
 class TestInputRedirection(unittest.TestCase):
     def setUp(self) -> None:
-        pass
+        os.chdir("/comp0010")
 
     def test_input_redirection(self):
         output = input_redirection(
@@ -448,6 +448,16 @@ class TestInputRedirection(unittest.TestCase):
         args = ["<", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
         with self.assertRaises(FileNotFoundError):
             input_redirection(args)
+
+    def test_input_redirection_infront(self):
+        expected = ("cat", ["dir1/file2.txt"])
+        output = eval_cmd("< dir1/file2.txt cat")
+        self.assertEqual(expected, output)
+
+    def test_input_redirection_infront_no_space(self):
+        expected = ("cat", ["dir1/file1.txt"])
+        output = eval_cmd("<dir1/file1.txt cat")
+        self.assertEqual(expected, output)
 
 
 if __name__ == "__main__":
