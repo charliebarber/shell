@@ -812,12 +812,12 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(output, expected)
 
     def test_eval_pipe(self):
-        expected = deque(["test\n"])
+        expected = deque(["test\n", "\n"])
         output = eval("echo test | cat")
         self.assertEqual(output, expected)
 
     def test_eval_pipe_for_loop(self):
-        expected = deque(["test\n"])
+        expected = deque(["test\n\n\n", "\n"])
         output = eval("echo test | cat | cat | cat")
         self.assertEqual(output, expected)
 
