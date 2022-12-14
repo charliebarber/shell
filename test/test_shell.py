@@ -848,7 +848,16 @@ class TestParsing(unittest.TestCase):
 
     # TODO
     def test_eval_cmd_globbing(self):
-        pass
+        expected = (
+            "cat",
+            [
+                '/comp0010/test/test_dir/test_dir1/test_file_wide.txt',
+                '/comp0010/test/test_dir/test_dir1/test_file2.txt',
+                '/comp0010/test/test_dir/test_dir1/test_file1.txt',
+                '/comp0010/test/test_dir/test_dir1/test_file_long.txt'
+            ])
+        output = eval_cmd("cat /comp0010/test/test_dir/test_dir1/*.txt")
+        self.assertEqual(output, expected)
 
     def test_eval_cmd_quote_groups(self):
         expected = ("grep", ['...', 'dir1/file1.txt', 'dir1/file2.txt'])
