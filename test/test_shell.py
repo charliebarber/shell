@@ -729,16 +729,6 @@ class TestSort(unittest.TestCase):
         output = self.unsafe_sort.exec(args)
 
 
-class TestCompleter(unittest.TestCase):
-    def setUp(self) -> None:
-        pass
-
-    def test_completer_dummy(self):
-        text = "cd test_d"
-        output = complete(text, 0)
-        self.assertEqual(output, "ir")
-
-
 class TestSubstitution(unittest.TestCase):
     def setUp(self) -> None:
         os.chdir("/comp0010")
