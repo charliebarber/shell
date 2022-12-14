@@ -2,7 +2,15 @@ import os
 from pyclbr import Function
 import unittest
 
-from shell import eval, eval_cmd, eval_substitution, get_sequence, input_redirection, run_cmd, seperate_pipes
+from shell import (
+    eval,
+    eval_cmd,
+    eval_substitution,
+    get_sequence,
+    input_redirection,
+    run_cmd,
+    seperate_pipes,
+)
 from collections import deque
 
 from applications.applications import (
@@ -334,7 +342,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(output, expected)
 
     def test_seperate_pipes(self):
-        expected = ['cat articles/text1.txt ', ' grep "Interesting String"']
+        expected = ["cat articles/text1.txt ", ' grep "Interesting String"']
         output = seperate_pipes('cat articles/text1.txt | grep "Interesting String"')
         self.assertEqual(output, expected)
 
@@ -397,12 +405,12 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(expected, output)
 
     def test_eval_cmd_input_redir_infront(self):
-        expected = ('cat', ['dir1/file2.txt'])
+        expected = ("cat", ["dir1/file2.txt"])
         output = eval_cmd("< dir1/file2.txt cat")
         self.assertEqual(expected, output)
 
     def test_eval_cmd_input_redir_infront_nospace(self):
-        expected = ('cat', ['dir1/file2.txt'])
+        expected = ("cat", ["dir1/file2.txt"])
         output = eval_cmd("<dir1/file2.txt cat")
         self.assertEqual(expected, output)
 
@@ -410,48 +418,49 @@ class TestParsing(unittest.TestCase):
     def test_eval_cmd_globbing(self):
         pass
 
+
+class TestInputRedirection(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
     def test_input_redirection(self):
         output = input_redirection(
-            [
-                '<',
-                '/comp0010/test/test_dir/test_dir1/test_file2.txt'
-            ])
-        expected = [['#STDIN#', 'CCC']]
-        self.assertEqual(output, expected)
+            ["test_arg", "<", "/comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        )
+        self.assertEqual(output, ["test_arg", ["#STDIN#", "AAA\nBBB\nAAA"]])
 
-    def test_input_redirection_double(self):
+    def test_input_redirection_no_space(self):
         output = input_redirection(
-            [
-                '<',
-                '/comp0010/test/test_dir/test_dir1/test_file2.txt'
-            ])
-        expected = [['#STDIN#', 'CCC']]
-        self.assertEqual(output, expected)
+            ["test_arg", "</comp0010/test/test_dir/test_dir1/test_file1.txt"]
+        )
+        self.assertEqual(output, ["test_arg", ["#STDIN#", "AAA\nBBB\nAAA"]])
+
+    def test_input_redirection_multiple_file_error(self):
+        args = [
+            "<",
+            "/comp0010/test/test_dir/test_dir1/test_file1.txt",
+            "<",
+            "/comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        with self.assertRaises(TypeError):
+            input_redirection(args)
+
+    def test_input_redirection_no_space_multiple_file_error(self):
+        args = [
+            "</comp0010/test/test_dir/test_dir1/test_file1.txt</comp0010/test/test_dir/test_dir1/test_file2.txt",
+        ]
+        with self.assertRaises(TypeError):
+            input_redirection(args)
+
+    def test_input_redirection_file_not_extists(self):
+        args = ["<", "/comp0010/test/test_dir/test_dir1/test_nofile.txt"]
+        with self.assertRaises(FileNotFoundError):
+            input_redirection(args)
 
 
-    # class TestInputRedirection(unittest.TestCase):
-    #     def test_input_redirection(self):
-    #         # Test input redirection with a single file
-    #         args = ["command", "<", "input.txt"]
-    #         expected = ["command", "#STDIN#", "Input data from input.txt"]
-    #         result = input_redirection(args)
-    #         self.assertEqual(result, expected)
-
-    #         # Test input redirection with multiple files
-    #         args = ["command", "<", "input1.txt", "<", "input2.txt"]
-    #         expected = TypeError
-    #         with self.assertRaises(TypeError):
-    #             result = input_redirection(args)
-
-    #         # Test input redirection with nonexistent file
-    #         args = ["command", "<", "nonexistent.txt"]
-    #         expected = FileNotFoundError
-    #         with self.assertRaises(FileNotFoundError):
-    #             result = input_redirection(args)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-        
+
 
 if __name__ == "__main__":
     unittest.main()
